@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kronika Země</title>
+    <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/u/0/d/16K3RSBeGxFXvFkrUNErTb1pJ21X8H32H">
+    <style>
+        body {
+            background-color: #000;
+            margin: 0;
+            color: #fff;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        .main-title {
+            color: bisque;
+            font-family: 'Baskerville', 'Libre Baskerville', 'Times New Roman', serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 12px 0;
+            margin: 0;
+            font-size: 1.7rem;
+            text-align: center;
+        }
+
+        .main-subtitle {
+            color: rgb(255, 255, 255);
+            font-family: 'Baskerville', 'Libre Baskerville', 'Times New Roman', serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding-bottom: 8px;
+            margin: 0;
+            font-size: 0.75rem;
+            text-align: center;
+        }
+
+        .image-container {
+            position: relative;
+            display: block;
+            width: fit-content;
+            margin: 20px auto;
+            overscroll-behavior: contain;
+            touch-action: pan-x pan-y;
+        }
+
+        .image-container img {
+            width: 90vw;
+            max-width: none;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+        }
+
+        .hotspot {
+            position: absolute;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0);
+        }
+
+        .hotspot:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* BOOKMARK: CSS */
+
+        .tooltip {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #222;
+            color: #ddd;
+            border: 1px solid #444;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            width: 95vw;
+            max-width: 450px;
+            max-height: 85vh;
+            max-height: 85dvh;
+            padding: 5px;
+            overflow: hidden;
+            z-index: 9999;
+            flex-direction: column;
+        }
+
+        .tooltip-content {
+            padding: 12px;
+            text-align: center;
+            overflow-y: scroll;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .tooltip-footer {
+            padding: 10px 20px;
+            text-align: right;
+            border-top: 1px solid #444;
+            background-color: #222;
+            flex-shrink: 0;
+        }
+
+        #close-btn {
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            padding: 5px 14px;
+            border-radius: 6px;
+            line-height: 1;
+        }
+
+        #scroll-wrapper {
+            width: 100%;
+        }
+
+        #fixed-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .tooltip h3 {
+            margin: 0 0 10px;
+            color: #fff;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .tooltip p {
+            margin: 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .tooltip b {
+            color: bisque;
+        }
+
+        .tooltip a {
+            color: #58a6ff;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                align-items: flex-start;
+            }
+
+            #fixed-header {
+                position: fixed;
+                width: 100vw;
+            }
+
+            #scroll-wrapper {
+                width: 200vw;
+            }
+
+            .image-container {
+                display: inline-block;
+                position: relative;
+                margin: 0;
+                width: 200vw;
+            }
+
+            .image-container img {
+                width: 200vw;
+                max-width: none;
+                margin: 0;
+                display: block;
+            }
+
+            .main-title {
+                font-size: 1.1rem;
+                position: sticky;
+                width: 100vw;
+            }
+
+            .main-subtitle {
+                font-size: 0.65rem;
+                width: 100vw;
+                text-align: center;
+            }
+
+            .tooltip {
+                top: 51%;
+                max-height: 69dvh;
+                max-height: 69vh;
+            }
+        }
+
+        /* BOOKMARK: Hotspots */
+        #cenozoic {
+            top: 15%;
+            left: 47%;
+            width: 4%;
+            height: 24%;
+        }
+
+        #holocene {
+            top: 15%;
+            left: 52%;
+            width: 19%;
+            height: 4%;
+        }
+
+        #pleistocene {
+            top: 19%;
+            left: 52%;
+            width: 19%;
+            height: 3%;
+        }
+
+        #pliocene {
+            top: 22%;
+            left: 52%;
+            width: 19%;
+            height: 4%;
+        }
+
+        #miocene {
+            top: 26%;
+            left: 52%;
+            width: 20%;
+            height: 4%;
+        }
+
+        #oligocene {
+            top: 29%;
+            left: 52%;
+            width: 26%;
+            height: 3%;
+        }
+
+        #eocene {
+            top: 32%;
+            left: 52%;
+            width: 26%;
+            height: 4%;
+        }
+
+        #paleocene {
+            top: 35%;
+            left: 52%;
+            width: 26%;
+            height: 4%;
+        }
+
+        #k-pg-extinction {
+            top: 38%;
+            left: 34%;
+            width: 10%;
+            height: 3%;
+        }
+
+        #mesozoic {
+            top: 40%;
+            left: 47%;
+            width: 4%;
+            height: 20%;
+        }
+
+        #cretaceous {
+            top: 40%;
+            left: 52%;
+            width: 26%;
+            height: 5%;
+        }
+
+        #jurassic {
+            top: 47%;
+            left: 52%;
+            width: 26%;
+            height: 6%;
+        }
+
+        #triassic {
+            top: 54%;
+            left: 52%;
+            width: 26%;
+            height: 5%;
+        }
+
+        #p-t-extinction {
+            top: 57%;
+            left: 34%;
+            width: 10%;
+            height: 4%;
+        }
+
+        #paleozoic {
+            top: 60%;
+            left: 47%;
+            width: 4%;
+            height: 22%;
+        }
+
+        #permian {
+            top: 59%;
+            left: 52%;
+            width: 27%;
+            height: 3%;
+        }
+
+        #pennsylvanian {
+            top: 63%;
+            left: 52%;
+            width: 27%;
+            height: 3%;
+        }
+
+        #mississippian {
+            top: 66%;
+            left: 52%;
+            width: 27%;
+            height: 3%;
+        }
+
+        #devonian {
+            top: 69%;
+            left: 52%;
+            width: 27%;
+            height: 3%;
+        }
+
+        #silurian {
+            top: 72%;
+            left: 52%;
+            width: 27%;
+            height: 3%;
+        }
+
+        #ordovician {
+            top: 75%;
+            left: 52%;
+            width: 27%;
+            height: 4%;
+        }
+
+        #cambrian {
+            top: 79%;
+            left: 52%;
+            width: 27%;
+            height: 3%;
+        }
+
+        #proterozoic {
+            top: 82%;
+            left: 47%;
+            width: 32%;
+            height: 4%;
+        }
+
+        #archean {
+            top: 86%;
+            left: 47%;
+            width: 32%;
+            height: 3%;
+        }
+
+        #earth-formation {
+            top: 89%;
+            left: 48%;
+            width: 37%;
+            height: 3%;
+        }
+
+        #pteranodon {
+            top: 20%;
+            left: 6%;
+            width: 16%;
+            height: 20%;
+        }
+
+        #scientists {
+            top: 8%;
+            left: 27%;
+            width: 17%;
+            height: 7%;
+        }
+
+        #truck {
+            top: 8%;
+            left: 49%;
+            width: 20%;
+            height: 7%;
+        }
+
+        #thanks {
+            top: 92%;
+            left: 92%;
+            width: 6%;
+            height: 3%;
+        }
+
+        #language {
+            top: 8%;
+            left: 92%;
+            width: 6%;
+            height: 3%;
+        }
+
+        #holocene-species {
+            top: 15%;
+            left: 29%;
+            width: 17%;
+            height: 4%;
+        }
+
+        #pleistocene-species {
+            top: 19%;
+            left: 29%;
+            width: 17%;
+            height: 3%;
+        }
+
+        #pliocene-species {
+            top: 22%;
+            left: 27%;
+            width: 19%;
+            height: 4%;
+        }
+
+        #miocene-species {
+            top: 26%;
+            left: 26%;
+            width: 20%;
+            height: 4%;
+        }
+
+        #oligocene-species {
+            top: 29%;
+            left: 25%;
+            width: 21%;
+            height: 3%;
+        }
+
+        #eocene-species {
+            top: 32%;
+            left: 24%;
+            width: 22%;
+            height: 4%;
+        }
+
+        #paleocene-species {
+            top: 35%;
+            left: 23%;
+            width: 23%;
+            height: 3%;
+        }
+
+        #cretaceous-species {
+            top: 41%;
+            left: 22%;
+            width: 24%;
+            height: 5%;
+        }
+
+        #jurassic-species {
+            top: 47%;
+            left: 23%;
+            width: 24%;
+            height: 6%;
+        }
+
+        #triassic-species {
+            top: 54%;
+            left: 23%;
+            width: 23%;
+            height: 3%;
+        }
+
+        #triassic-species2 {
+            top: 57%;
+            left: 23%;
+            width: 10%;
+            height: 3%;
+        }
+
+        #permian-species {
+            top: 61%;
+            left: 22%;
+            width: 24%;
+            height: 2%;
+        }
+
+        #permian-species2 {
+            top: 59%;
+            left: 22%;
+            width: 10%;
+            height: 2%;
+        }
+
+        #pennsylvanian-species {
+            top: 63%;
+            left: 21%;
+            width: 25%;
+            height: 3%;
+        }
+
+        #mississippian-species {
+            top: 66%;
+            left: 20%;
+            width: 26%;
+            height: 3%;
+        }
+
+        #devonian-species {
+            top: 69%;
+            left: 19%;
+            width: 27%;
+            height: 3%;
+        }
+
+        #silurian-species {
+            top: 72%;
+            left: 18%;
+            width: 28%;
+            height: 3%;
+        }
+
+        #ordovician-species {
+            top: 75%;
+            left: 17%;
+            width: 29%;
+            height: 4%;
+        }
+
+        #cambrian-species {
+            top: 79%;
+            left: 16%;
+            width: 30%;
+            height: 3%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="fixed-header">
+        <h1 class="main-title">Kronika Země</h1>
+        <p class="main-subtitle">Interaktivní geologická časová osa<br><br>Prozkoumejte kliknutím
+    </div>
+
+    <!-- BOOKMARK: Text  -->
+    <div id="scroll-wrapper">
+        <div class="image-container">
+            <img src="https://lh3.googleusercontent.com/u/0/d/1ASNSV0cGu1v9WVzPv_-Bo7lvEnJD7KXh" alt="Geologic Time Scale">
+
+            <div class="hotspot" id="cenozoic" data-title="Kenozoikum" data-desc="<b>Období:</b> Před 66 miliony let až do současnosti.<br><br><b>Život:</b> Éra savců. Po vyhynutí neptačích dinosaurů došlo k bouřlivému rozvoji savců a ptáků, kteří obsadili uvolněné ekologické niky. Celosvětové rozšíření travin zásadně proměnilo podobu ekosystémů. Evoluce primátů nakonec vyústila ve vznik lidské linie.<br><br><b>Geologie:</b> Kontinenty se přesunuly do téměř dnešních pozic. Srážka Indie s Asií vyzdvihla pohoří Himálaj. Atlantský oceán se nadále rozšiřoval a Antarktida se izolovala v oblasti jižního pólu.<br><br><b>Klima:</b> Dlouhodobé postupné ochlazování od původního tropického klimatu až po opakované doby ledové v pleistocénu. Hladina CO₂ vytrvale klesala, což vedlo k ústupu hustých lesů a vzniku otevřených plání na většině území světa.<br><br><a href='https://cs.wikipedia.org/wiki/Kenozoikum' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="holocene" data-title="Holocén" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1RIA73b-px9AUVqedKk-cQTvqGh26Ghmi' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 11 700 lety až do současnosti.<br><br><b>Život:</b> Všechny moderní druhy ve své současné podobě. Dominantním rysem je rychlé celosvětové rozšíření druhu Homo sapiens, které vedlo k rozsáhlému vymírání megafauny a k prvopočátkům domestikace rostlin a zvířat.<br><br><b>Geologie:</b> Stabilní poloha kontinentů, která je totožná s dnešní. Po posledním glaciálním maximu došlo k výraznému vzestupu hladiny moří, což zásadně změnilo podobu pobřeží po celém světě.<br><br><b>Klima:</b> Teplé a stabilní období meziledové (interglaciál). Mírný přirozený trend ochlazování v posledních 5 000 letech se obrátil a vlivem průmyslové činnosti lidstva nyní dochází k jeho zrychlování.<br><br><a href='https://cs.wikipedia.org/wiki/Holocén' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="pleistocene" data-title="Pleistocén" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1jF2on_hcIUUsbrvPGfGHivbPwBaVKOvw' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 2,58 miliony až 11 700 lety.<br><br><b>Život:</b> Domov typické megafauny - mamutů srstnatých, nosorožců srstnatých, jeskynních lvů a obřích pozemních lenochodů. V tomto období se vyvinul druh Homo sapiens a osídlil všechny kontinenty, čímž pravděpodobně spolu s klimatickými změnami přispěl k zániku megafauny.<br><br><b>Geologie:</b> Opakované postupy a ústupy mohutných ledovcových štítů přetvářely krajinu severní polokoule, hloubily údolí a ukládaly morény. Objevily se také pevninské mosty, včetně Beringovy šíje spojující Asii a Severní Ameriku.<br><br><b>Klima:</b> Éra definovaná přibližně 20 glaciálními cykly. Během vrcholného zalednění pokrýval ledovec velkou část Severní Ameriky i severní Evropy a hladina světového oceánu byla o zhruba 120 metrů nižší než dnes.<br><br><a href='https://cs.wikipedia.org/wiki/Pleistocén' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="pliocene" data-title="Pliocén" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1esdgfcaveNULg5fhYz0bCo7bY-acLaEg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 5,3 až 2,6 miliony let.<br><br><b>Život:</b> Raní homininé, včetně australopitéků, se již pohybovali vzpřímeně po afrických savanách. Travnaté plochy se rozšiřovaly na úkor lesů, což svědčilo pasoucím se savcům. Začaly se formovat moderní rody mnoha známých zvířat, jako jsou koně, sloni či velké kočkovité šelmy.<br><br><b>Geologie:</b> Došlo k úplnému uzavření Panamské šíje, která propojila Severní a Jižní Ameriku a spustila velkou americkou biotickou výměnu. Tento proces také změnil směr oceánských proudů, což zásadně ovlivnilo globální klimatické vzorce.<br><br><b>Klima:</b> Svět byl chladnější a sušší než v miocénu. Uzavření panamské mořské cesty narušilo cirkulaci teplých vod v Atlantiku, což ke konci epochy urychlilo nástup zalednění severní polokoule.<br><br><a href='https://cs.wikipedia.org/wiki/Pliocén' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="miocene" data-title="Miocén" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1zQgSQ87mze4gNN3XstDX8Mfj1PtXBeOn' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 23 až 5,3 miliony let.<br><br><b>Život:</b> Došlo k rozsáhlému rozvoji lidoopů v Africe a Eurasii, včetně předků dnešních hominidů. Celosvětové šíření travin podnítilo evoluci rychle běhajících býložravců. V oceánech se objevily chaluhoové lesy, které vytvořily podmínky pro nové, bohaté mořské ekosystémy.<br><br><b>Geologie:</b> Srážka Afriky s Eurasií uzavřela starobylé moře Tethys, čímž vznikla Středomořská pánev. Pokračoval výzdvih Alp a Himálaje. Antarktida se vlivem naprosté polární izolace trvale pokryla ledem.<br><br><b>Klima:</b> Po počátečním teplém období následovalo postupné ochlazování. Teplotní vrchol ve středním miocénu vystřídal před 14 miliony let prudký pokles teplot spojený s nárůstem antarktického ledového štítu, což znamenalo přechod k modernímu chladnějšímu klimatu.<br><br><a href='https://cs.wikipedia.org/wiki/Miocén' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="oligocene" data-title="Oligocén" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/138krGY2giqejY2prILCZG3SZkUJtg0ne' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 34 až 23 miliony let.<br><br><b>Život:</b> Objevili se a diverzifikovali raní koně, nosorožci a sloni. Husté tropické lesy ustoupily a nahradily je otevřené lesnaté krajiny a první travnaté plochy. Mořský život vzkvétal, přičemž velryby se v tomto období staly výhradně vodními tvory.<br><br><b>Geologie:</b> Antarktida se zcela oddělila od Jižní Ameriky, čímž se otevřel Drakeův průliv a vznikl cirkumpolární proud. Evropa a Asie se k sobě nadále přibližovaly. Krajina v mnoha oblastech středních zeměpisných šířek se stala sušší a otevřenější.<br><br><b>Klima:</b> Výrazné ochlazení na začátku epochy, spojené s otevřením Drakeova průlivu, vedlo k prudkému poklesu globálních teplot. Poprvé se vytvořily trvalé antarktické ledové štíty, což znatelně snížilo hladinu moří.<br><br><a href='https://cs.wikipedia.org/wiki/Oligocén' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="eocene" data-title="Eocén" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1Jt5qt5vcO6yb7L8AYouA2KUozmESP6_X' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 56 až 34 miliony let.<br><br><b>Život:</b> Objevily se rané formy koní, velryb, netopýrů a primitivních primátů. Husté tropické a subtropické lesy sahaly až do vysokých zeměpisných šířek, včetně Arktidy. Na všech kontinentech se začaly etablovat moderní řády ptáků a savců.<br><br><b>Geologie:</b> Probíhala aktivní kolize Indie s Asií, čímž započal výzdvih Himálaje. Austrálie se oddělila od Antarktidy. Severní Atlantik se nadále rozšiřoval, když se Grónsko vzdalovalo od Evropy.<br><br><b>Klima:</b> Období začalo paleocenním-eocenním teplotním maximem, nejextrémnějším oteplením za posledních 66 milionů let, kdy globální teploty prudce vzrostly o 5 až 8 stupňů Celsia. Poté následovalo plynulé ochlazování zakončené výrazným zaledněním, které vyvolalo přechod eocén-oligocén.<br><br><a href='https://cs.wikipedia.org/wiki/Eocén' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="paleocene" data-title="Paleocén" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1DlyEATTjkU0q0jAP_QkpWQsyr-RV-WdW' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 66 až 56 miliony let.<br><br><b>Život:</b> První epocha po masovém vymírání. Malí, nespecializovaní savci - převážně noční hmyzožravci - se začali rychle vyvíjet a obsazovat uvolněné ekologické niky. Prudkým rozvojem prošli také ptáci. Pravé traviny se ještě nevyvinuly; v krajině dominovaly kapradiny a kvetoucí rostliny tvořící regenerující se lesy.<br><br><b>Geologie:</b> Kontinenty již měly zhruba rozpoznatelný tvar, ale byly k sobě blíže přimknuty. Atlantik byl užší a Indie byla izolovaným ostrovním kontinentem, který se rychle pohyboval na sever směrem k Asii.<br><br><b>Klima:</b> Teplé a relativně stabilní napříč zeměpisnými šířkami, zcela bez polárního zalednění. Tropické a subtropické podmínky zasahovaly hluboko do oblastí dnešní mírné Evropy a Severní Ameriky. Hladina CO₂ byla v důsledku dopadu na rozhraní křídy a paleogénu vysoká.<br><br><a href='https://cs.wikipedia.org/wiki/Paleocén' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="k-pg-extinction" data-title="Vymírání na rozhraní křídy a paleogénu" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1vhCuGC8hP-6NPH1eZh-2u3v7D-q_TjUX' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 66 miliony let.<br><br><b>Příčina:</b> Asteroid o průměru 10 až 15 km dopadl na poloostrov Yucatán a uvolnil energii odpovídající miliardám jaderných bomb. Následovaly rozsáhlé požáry, několikaletá impaktní zima způsobená vyvrženým materiálem blokujícím sluneční svit a následné skleníkové oteplování.<br><br><b>Vymírání:</b> Zaniklo přibližně 75 % všech tehdejších druhů, včetně všech neptačích dinosaurů, ptakoještěrů, amonitů, mosasaurů a velkých mořských plazů. Přeživší druhy tvořili převážně drobní živočichové žijící v norách nebo ve vodním prostředí.<br><br><b>Význam:</b> Tato událost definitivně ukončila éru druhohor a zcela změnila směr vývoje života na Zemi. Bez tohoto zásahu by se savci - a následně i lidé - pravděpodobně nikdy nestali dominantními tvory.<br><br><a href='https://cs.wikipedia.org/wiki/Vymírání_na_konci_křídy' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="mesozoic" data-title="Mezozoikum" data-desc="<b>Období:</b> Před 252 až 66 miliony let.<br><br><b>Život:</b> Éra plazů. Souši dominovali dinosauři, nebi vládli ptakoještěři a moře obývali ichtyosauři a plesiosauři. Během této éry se také objevily první kvetoucí rostliny, ptáci a drobní savci.<br><br><b>Geologie:</b> Na počátku existoval jediný superkontinent Pangea, který se postupně rozpadl na severní Laurasii a jižní Gondwanu a nakonec na pevninské celky, jak je známe dnes.<br><br><b>Klima:</b> Převážně teplé a zcela bez zalednění, s vysokou koncentrací CO₂ a hladinou moří výrazně vyšší než v současnosti. Neexistovaly žádné trvalé polární čepičky a velkou část kontinentů pokrývala mělká moře.<br><br><a href='https://cs.wikipedia.org/wiki/Mezozoikum' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="cretaceous" data-title="Křída" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1NLcQX-yTb_k7D_xdkBL77xKcvkhPa8Rq' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 145 až 66 miliony let.<br><br><b>Život:</b> Vrchol rozmanitosti dinosaurů - včetně rodů Tyrannosaurus, Triceratops a Velociraptor. Došlo k evoluci a rychlému rozšíření kvetoucích rostlin, které zásadně proměnilo podobu krajiny. Objevil se první sociální hmyz. Přítomni byli již drobní placentální i vačnatí savci, zatím však tvořili jen okrajovou část fauny.<br><br><b>Geologie:</b> Pokračoval rozpad Gondwany, při kterém se od sebe oddělovaly Afrika, Jižní Amerika, Indie a Antarktida. Rozsáhlé vnitrozemské moře rozdělilo Severní Ameriku na dvě části. Ke konci období započal výzdvih Skalnatých hor.<br><br><b>Klima:</b> Velmi teplé a v podstatě bez zalednění, přičemž hladina moří dosahovala jedněch z nejvyšších hodnot v historii Země. Koncentrace CO₂ byla několikanásobně vyšší než dnes. Období bylo náhle ukončeno dopadem asteroidu na rozhraní křídy a paleogénu.<br><br><a href='https://cs.wikipedia.org/wiki/K%C5%99%C3%ADda' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="jurassic" data-title="Jura" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1Rnuy2ok6MkWRO9qihZBbwB0D45uWW_G4' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 201 až 145 miliony let.<br><br><b>Život:</b> Dominantou byli obří sauropodní dinosauři - největší suchozemští živočichové v dějinách Země - spolu s dravými teropody. Z malých opeřených dinosaurů se vyvinuli první ptáci. Jehličnany, kapradiny a cykasy tvořily rozsáhlé bujné lesy. Raní savci zůstávali drobní a vedli převážně noční způsob života.<br><br><b>Geologie:</b> Pangea se aktivně rozpadala na Laurasii a Gondwanu a začal se otevírat centrální Atlantský oceán. Přes Evropu a části Severní Ameriky se rozlévala mělká moře. Podél nových riftových zón probíhala intenzivní vulkanická činnost.<br><br><b>Klima:</b> Teplý a vlhký <i>skleníkový svět</i> zcela bez polárního zalednění. Vysoká vlhkost a hladina CO₂ podporovaly růst husté vegetace, která živila obrovská stáda sauropodů. Sezónní výkyvy byly v porovnání s dneškem mírné.<br><br><a href='https://cs.wikipedia.org/wiki/Jura' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="triassic" data-title="Trias" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1oIivBIlrsl7ZID8VwBbmOL9aaKgqbQnZ' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 252 až 201 miliony let.<br><br><b>Život:</b> Život se pomalu vzpamatovával z masového vymírání na konci permu. Koncem triasu se objevili první skuteční dinosauři, zpočátku jako malí dvounozí živočichové. Vyvinuli se také první savci - drobní, noční tvorové podobní rejskům. Oceány osídlili mořští plazi, včetně ichtyosaurů.<br><br><b>Geologie:</b> Souš tvořil jediný superkontinent Pangea s rozsáhlým vyprahlým vnitrozemím, které bylo příliš vzdálené od zmírňujícího vlivu oceánu. Na východní straně tvořilo moře Tethys velký tropický záliv. Typickým geologickým záznamem z tohoto období jsou rozsáhlé pouště s červenými pískovci.<br><br><b>Klima:</b> Ve většině vnitrozemí panovalo horké a suché podnebí, zatímco u pobřeží se projevovaly silné monzunové systémy. Polární zalednění neexistovalo. Konec triasu provázely masivní sopečné erupce v důsledku počínajícího rozpadu Pangey, což vyvolalo další vymírání, které uvolnilo cestu k dominanci dinosaurů.<br><br><a href='https://cs.wikipedia.org/wiki/Trias' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="p-t-extinction" data-title="Vymírání na rozhraní permu a triasu" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1w-xgECTNk86yTNZ5MJL5rn75xJwaqYhy' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 252 miliony let.<br><br><b>Příčina:</b> Masivní sopečné erupce v oblasti dnešní Sibiře - tzv. sibiřské trapy - uvolňovaly po desetitisíce let obrovské množství CO₂ a toxických plynů. To vyvolalo nekontrolované globální oteplování, okyselování oceánů a rozsáhlý úbytek kyslíku v mořích.<br><br><b>Vymírání:</b> Nejzávažnější hromadné vymírání v dějinách Země. Odhaduje se, že zaniklo 96 % mořských druhů a 70 % suchozemských obratlovců. Celé skupiny - například trilobiti, poupěnci či většina korálových linií - zmizely navždy.<br><br><b>Význam:</b> Obnova ekosystémů trvala přibližně 10 milionů let, což je mnohem déle než po vymírání na konci křídy. Ekologické vakuum po „velkém vymírání“ umožnilo archosaurům - předkům dinosaurů a krokodýlů - získat v triasu dominantní postavení.<br><br><a href='https://cs.wikipedia.org/wiki/Permsk%C3%A9_vym%C3%ADr%C3%A1n%C3%AD' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="paleozoic" data-title="Paleozoikum" data-desc="<b>Období:</b> Před 541 až 252 miliony let.<br><br><b>Život:</b> Éra začala kambrickou explozí druhové rozmanitosti v mořích a skončila nejzávažnějším hromadným vymíráním v dějinách Země. Během této éry život osídlil souš, objevily se první lesy, hmyz ovládl vzduch a první obratlovci v podobě čtyřnožců vystoupili na břeh.<br><br><b>Geologie:</b> Postupné srážky kontinentů vedly ke konci éry ke vzniku superkontinentu Pangea. V tomto období se vytvořila Appalačská a Kaledonská pohoří, která svou tehdejší výškou konkurovala dnešnímu Himálaji.<br><br><b>Klima:</b> Během 289 milionů let bylo klima velmi proměnlivé - od extrémního ordovického zalednění přes teplé skleníkové období devonu a karbonu až po permské ochlazení a následné katastrofální oteplování při vymírání na rozhraní permu a triasu.<br><br><a href='https://cs.wikipedia.org/wiki/Paleozoikum' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="permian" data-title="Perm" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1Uq70iPwIrUjRkaBkXnhvIcUIJ3Hx4NMH' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 299 až 252 miliony let.<br><br><b>Život:</b> Dominantními velkými živočichy na souši byli synapsidi - skupina, z níž se později vyvinuli savci - včetně rodu Dimetrodon s charakteristickou hřbetní plachtou. Bažinaté uhelné pralesy nahradily jehličnany a kapraďosemenné rostliny. Hmyz se dále diverzifikoval a poprvé se objevili brouci.<br><br><b>Geologie:</b> Pangea byla již zcela zformována a tvořila jediný obří superkontinent s rozsáhlým vnitrozemím izolovaným od vlivu oceánu. Východní břehy omývalo moře Tethys. V raném permu v jižních částech Gondwany stále přetrvávaly mohutné ledovce.<br><br><b>Klima:</b> Původně chladný a zaledněný svět se postupně měnil v čím dál teplejší a sušší prostředí, jak vnitrozemí Pangey vysychalo. Období skončilo katastrofálním oteplováním vyvolaným sopečnou činností během vymírání na rozhraní permu a triasu.<br><br><a href='https://cs.wikipedia.org/wiki/Perm' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="pennsylvanian" data-title="Svrchní karbon" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1gdx-edvvTFWoGCRo4LbaMwrFrtjF2vrT' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 323 až 299 miliony let.<br><br><b>Život:</b> Rozsáhlé uhelné pralesy, v nichž dominovaly obří plavuně, přesličky a stromovité kapradiny dosahující výšky až 30 metrů. Vyvinuli se první plazi, schopní klást vejce na souši. V atmosféře bohaté na kyslík vzkvétal obří hmyz - například příbuzní dnešních vážek s rozpětím křídel až 70 cm.<br><br><b>Geologie:</b> Srážka Gondwany s Euramerikou aktivně formovala Appalačské a Hercynské pohoří. V rozsáhlých nížinných bažinách se hromadila biomasa, ze které vznikla většina světových zásob černého uhlí.<br><br><b>Klima:</b> Chladné a vlhké s opakovaným zaledněním na jižní polokouli. Koncentrace kyslíku v atmosféře byla výrazně vyšší než dnes - přibližně 35 % oproti současným 21 % - což umožnilo existenci obřího hmyzu a vedlo k častým rozsáhlým požárům.<br><br><a href='https://cs.wikipedia.org/wiki/Karbon' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="mississippian" data-title="Spodní karbon" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/19RtdNjnliesBofaXvY2qMTIdefuUiQpH' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 359 až 323 miliony let.<br><br><b>Život:</b> Teplá mělká moře kypěla životem - hojně se vyskytovali lilijice, poupěnci a mechovky, jejichž schránky vytvořily mocná vápencová ložiska. Na souši se diverzifikovali raní čtyřnožci spolu s primitivními obojživelníky. Začaly se šířit semenné rostliny, čímž se snížila závislost reprodukce na vodním prostředí.<br><br><b>Geologie:</b> Vysoká hladina moří zaplavila rozsáhlé kontinentální šelfy, zejména v Severní Americe a Evropě, a zanechala po sobě mohutné vápencové formace, které jsou pro toto období typické. Pevninské bloky pokračovaly v pomalé kolizi směřující ke vzniku superkontinentu Pangea.<br><br><b>Klima:</b> Zpočátku teplé a vlhké s vysokou hladinou moří a rozsáhlými tropickými vodami. Ochlazování ke konci období přispělo k poklesu mořské hladiny a k počátkům karbonského zalednění, které se naplno projevilo ve svrchním karbonu.<br><br><a href='https://cs.wikipedia.org/wiki/Karbon' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="devonian" data-title="Devon" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1wonovQ-93w7lMTlHnDyH13PugY1OKe7s' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 419 až 359 miliony let.<br><br><b>Život:</b> Známý jako „věk ryb“. Mořím dominovali mohutně pancéřovaní placodermi, včetně obřího dravce rodu Dunkleosteus. Na souši se objevily první skutečné lesy a lalokoploutvé ryby zahájily přechod k suchozemským čtyřnožcům. Objevila se také první semena, což znamenalo revoluci v rozmnožování rostlin.<br><br><b>Geologie:</b> Srážkou Laurentie a Baltiky vznikl superkontinent Euramerika, čímž bylo vyzdviženo Kaledonské pohoří v oblasti dnešního Skotska a Skandinávie. Gondwana se nacházela na jižní polokouli. Tropické mělčiny pokrývaly rozsáhlé útesové systémy tvořené stromatoporami a korály.<br><br><b>Klima:</b> Zpočátku teplé a v podstatě bez zalednění. Rozšiřování lesů vedlo k výraznému poklesu atmosférického CO₂, což ke konci období ochladilo klima. To pravděpodobně přispělo k pozdně devonskému vymírání, při němž zaniklo asi 75 % druhů.<br><br><a href='https://cs.wikipedia.org/wiki/Devon_(geologie)' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="silurian" data-title="Silur" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1l64QkVP_x12tpLdPuDdYNlGROedlSEuM' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 444 až 419 miliony let.<br><br><b>Život:</b> Poprvé se objevily čelistnaté ryby, což představovalo zásadní evoluční skok. Cévnaté rostliny s pravými stonky začaly osidlovat souš, doprovázeny prvními suchozemskými členovci, jako byly mnohonožky a raní pavoukovci. V teplých mělkých mořích došlo k výraznému rozmachu korálových útesů.<br><br><b>Geologie:</b> Po ordovickém zalednění hladina moří výrazně stoupla, což zaplavilo kontinentální šelfy a vytvořilo prostředí teplých mělkých moří. Srážka Avalonie s Laurentií začala uzavírat oceán Iapetus, čímž byly položeny základy pro pozdější vznik Eurameriky.<br><br><b>Klima:</b> Teplé a stabilní klima po drsném zalednění na konci ordoviku. Hladina CO₂ byla vysoká, globální teploty výrazně převyšovaly dnešní průměry a polární oblasti byly bez trvalého ledu. Z klimatického hlediska se jednalo o jedno z nejklidnějších období v dějinách Země.<br><br><a href='https://cs.wikipedia.org/wiki/Silur' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="ordovician" data-title="Ordovik" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1BGoBGfTSbGWF-B973gan0pZy2HPFDq4C' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 485 až 444 miliony let.<br><br><b>Život:</b> Mořský život byl mimořádně rozmanitý - mořím dominovali trilobiti, ramenonožci, hlavonožci a ostnokožci. Poblíž pobřeží se objevily první primitivní suchozemské rostliny - drobné formy podobné mechům. Přítomny byly i bezčelistnaté ryby, které však stále tvořily jen okrajovou složku fauny.<br><br><b>Geologie:</b> Dominantní pevninskou masou byla Gondwana, která se posouvala přes jižní pól. Oceán Iapetus ji odděloval od menších kontinentů Laurentie a Baltiky. Velkou část kontinentálních šelfů pokrývala rozsáhlá mělká tropická moře.<br><br><b>Klima:</b> Období začalo jako teplé s vysokou hladinou CO₂ i moří, ale skončilo náhlým a prudkým zaledněním, když se Gondwana přesunula nad jižní pól. Toto zalednění způsobilo výrazný pokles hladiny moří a vyvolalo hromadné vymírání na konci ordoviku, druhé největší v dějinách Země, při kterém zaniklo přibližně 85 % druhů.<br><br><a href='https://cs.wikipedia.org/wiki/Ordovik' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="cambrian" data-title="Kambrium" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/19knfKZNwhB2IDLj2a67RtG8lc0vkm4Pv' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 541 až 485 miliony let.<br><br><b>Život:</b> Kambrická exploze - jedna z nejvýznamnějších událostí v dějinách života. Většina hlavních tělesných plánů živočichů se objevila v geologicky krátkém časovém úseku. Moře bohatá na kyslík obývali tvorové jako Anomalocaris, Hallucigenia a trilobiti. V rychlém sledu se vyvinuly oči, schránky, končetiny i žábry.<br><br><b>Geologie:</b> Jižní polokouli dominoval superkontinent Gondwana. Kontinenty Laurentie, Baltika a Sibiř byly samostatné pevninské celky v tropických až subtropických šířkách. Rozšířená byla mělká, teplá kontinentální moře.<br><br><b>Klima:</b> Globálně teplé, bez důkazů o polárním zalednění. Vysoké hladiny CO₂ a teplé oceány podporovaly explozivní rozvoj mořského života. Hladina moří byla vysoká, zaplavovala rozsáhlé části kontinentů a vytvářela mělkovodní biotopy, v nichž vzkvétala kambrická fauna.<br><br><a href='https://cs.wikipedia.org/wiki/Kambrium' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="proterozoic" data-title="Proterozoikum" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1puflGlHCgS28ybO4HzdLNcdSLP2Bx_CO' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 2,5 miliardami až 541 miliony let.<br><br><b>Život:</b> Před přibližně 1,8 miliardami let se objevili první eukaryoti - buňky s jádrem, což představovalo zásadní skok v komplexitě. Následovaly první mnohobuněčné organismy, vrcholící ediakarskou faunou: záhadnými živočichy s měkkým tělem, kteří představují nejstarší známé formy života na úrovni živočichů.<br><br><b>Geologie:</b> Proběhlo několik cyklů vzniku a rozpadu superkontinentů, včetně zformování a následného dělení Rodinie před zhruba 1 miliardou let. Kontinenty se opakovaně formovaly a podléhaly erozi. Z tohoto eonu pocházejí nejstarší rozpoznatelné horské pásy a sedimentární pánve.<br><br><b>Klima:</b> Zahrnovalo nejextrémnější zalednění v dějinách Země - události známé jako „Země - sněhová koule“, během nichž ledovcové štíty pravděpodobně sahaly až k rovníku. Tato období střídaly teplé skleníkové intervaly vyvolané nahromaděním sopečného CO₂. Velká oxidační událost před zhruba 2,4 miliardami let trvale změnila atmosféru a umožnila pozdější vznik komplexního života.<br><br><a href='https://cs.wikipedia.org/wiki/Proterozoikum' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="archean" data-title="Archaikum" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/10Tr6IjnPuPfVmJltaAyPSsBz7LGb4eGb' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 4 až 2,5 miliardami let.<br><br><b>Život:</b> Život existoval, ale výhradně ve formě jednobuněčných prokaryot - bakterií a archeí. Stromatolity, vrstevnaté biogenní útvary tvořené fotosyntetizujícími sinicemi, patří mezi nejstarší fosilní důkazy života a začaly do atmosféry pomalu uvolňovat kyslík.<br><br><b>Geologie:</b> Vznikly první stabilní kontinentální kratony - prastará jádra hornin, která dodnes tvoří středy moderních kontinentů. Zemská kůra byla tenčí a mobilnější než dnes, s intenzivní sopečnou činností. Neexistovala žádná velká pohoří; povrchu dominovala mělká moře a sopečné ostrovy.<br><br><b>Klima:</b> Atmosféra se skládala převážně z dusíku a CO₂, bez volného kyslíku. I přesto, že Slunce zářilo přibližně o 30 % méně než dnes, vysoké koncentrace skleníkových plynů udržely vodu na povrchu v kapalném stavu. Teploty byly pravděpodobně vyšší než dnešní průměry a většinu povrchu pokrýval globální oceán.<br><br><a href='https://cs.wikipedia.org/wiki/Archaikum' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="earth-formation" data-title="Raná Země" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1QwV8g5J4RS84qRaxBKAK6efyeRfyWKpr' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 4,54 miliardami let - eon hadaikum (před 4,54 až 4 miliardami let).<br><br><b>Život:</b> Žádný. Povrch byl zcela nehostinný - tavenina nebo prostředí pod intenzivním bombardováním, kde po většinu období neexistovala stabilní kapalná voda. Některé geochemické nálezy naznačují, že mikrobiální život se mohl objevit ke konci hadaikum, ale neexistují žádné potvrzené fosilie.<br><br><b>Geologie:</b> Země vznikla z prachoplynové mlhoviny postupným nabalováním hmoty při kolizích planetesimál. Do proto-Země narazilo těleso o velikosti Marsu a vyvržený materiál vytvořil Měsíc. Povrch byl převážně roztavený. Nejstarší známé minerály - krystaly zirkonu z Austrálie - pocházejí z doby před 4,4 miliardami let, což naznačuje, že kapalná voda existovala překvapivě brzy.<br><br><b>Klima:</b> Intenzivní teplo z narůstání hmoty, radioaktivního rozpadu a častých dopadů meteoritů udržovalo povrch v roztaveném či polotekutém stavu. Planetu obklopovala hustá atmosféra z vodní páry a CO₂. Jak Země postupně chladla, pára kondenzovala a vytvořila první oceány - základ pro vše, co následovalo.<br><br><a href='https://cs.wikipedia.org/wiki/Hadaikum' target='_blank'>Wikipedia</a>"></div>
+
+            <div class="hotspot" id="pteranodon" data-title="Pteranodon" data-desc="Velký bezocasý ptakoještěr z období křídy, který se vyznačoval dlouhým bezzubým zobákem a výrazným kostěným výrůstkem na hlavě.<br><br><a href='https://cs.wikipedia.org/wiki/Pteranodon' target='_blank' >Wikipedia</a>"></div>
+
+            <div class="hotspot" id="scientists" data-title="Paleontologové" data-desc="Vědci odhalující minulost. Paleontologie je vědní obor zabývající se životem v minulých geologických obdobích na základě studia zkamenělin (fosilií).<br><br><a href='https://cs.wikipedia.org/wiki/Paleontologie' target='_blank' >Wikipedia</a>"></div>
+
+            <div class="hotspot" id="truck" data-title="Holocenní „fosilie“" data-desc="Pick-up ve stylu 70. let 20. století. Představuje nepatrný zlomek historie Země, který zaujímá lidská průmyslová civilizace."></div>
+
+            <div class="hotspot" id="thanks" data-title="O projektu" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/15tA-jNLkgXiow4OTe9aKOVwlp3zrLUxi' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Kronika Země slouží jako interaktivní vzdělávací průvodce geologickým časem.<br>Projekt vyvinul v dubnu 2026 Josef Handsuch s využitím nástrojů VSCodium, Photoshop a Wikipedia, společně s asistencí umělé inteligence Gemini a Claude. Tato aplikace představuje osobní závazek ke vzdělávání v oblasti věd o Zemi."></div>
+
+            <div class="hotspot" id="language" data-title="English version" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1DxNidozMuQLh0gnFaa2l_0GfoSt0e7jt' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><a href='index.html'>SWITCH</a>"></div>
+
+            <div class="hotspot" id="holocene-species" data-title="Významné druhy ve volné přírodě holocénu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Sparring_2_2004-11-16.jpg/960px-Sparring_2_2004-11-16.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail/960px-Arctic_tern_%28Sterna_paradisaea%29_adult_with_juvenile_Flatey.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují jedny z nejrozšířenějších a ekologicky nejvýznamnějších divokých druhů současnosti.<br><br><a href='https://cs.wikipedia.org/wiki/Ryb%C3%A1k_dlouhoocas%C3%BD' target='_blank'>Rybák dlouhoocasý (Sterna paradisaea)</a><br><a href='https://cs.wikipedia.org/wiki/Slon_africk%C3%BD' target='_blank'>Slon africký (Loxodonta africana)</a><br><a href='https://cs.wikipedia.org/wiki/Plejtv%C3%A1k_obrovsk%C3%BD' target='_blank'>Plejtvák obrovský (Balaenoptera musculus)</a><br><a href='https://cs.wikipedia.org/wiki/Monarcha_st%C4%9Bhovav%C3%BD' target='_blank'>Monarcha stěhovavý (Danaus plexippus)</a><br><a href='https://cs.wikipedia.org/wiki/Krokod%C3%BDl_nilsk%C3%BD' target='_blank'>Krokodýl nilský (Crocodylus niloticus)</a><br><a href='https://cs.wikipedia.org/wiki/Sokol_st%C4%9Bhovav%C3%BD' target='_blank'>Sokol stěhovavý (Falco peregrinus)</a><br><a href='https://cs.wikipedia.org/wiki/Medv%C4%9Bd_ledn%C3%AD' target='_blank'>Medvěd lední (Ursus maritimus)</a><br><a href='https://cs.wikipedia.org/wiki/Krokod%C3%BDl_mo%C5%99sk%C3%BD' target='_blank'>Krokodýl mořský (Crocodylus porosus)</a><br><a href='https://cs.wikipedia.org/wiki/Albatros_st%C4%9Bhovav%C3%BD' target='_blank'>Albatros stěhovavý (Diomedea exulans)</a><br><a href='https://cs.wikipedia.org/wiki/Vlk_obecn%C3%BD' target='_blank'>Vlk obecný (Canis lupus)</a><br><br>Následující rostliny představují jedny z nejrozšířenějších a ekologicky dominantních zástupců flóry moderního světa.<br><br><a href='https://cs.wikipedia.org/wiki/Lipnicovit%C3%A9' target='_blank'>Trávy (čeleď Poaceae)</a><br><a href='https://cs.wikipedia.org/wiki/Dub' target='_blank'>Dub (Quercus)</a><br><a href='https://cs.wikipedia.org/wiki/Borovice' target='_blank'>Borovice (Pinus)</a><br><a href='https://cs.wikipedia.org/wiki/B%C5%99%C3%ADza' target='_blank'>Bříza (Betula)</a><br><a href='https://cs.wikipedia.org/wiki/F%C3%ADkus' target='_blank'>Fíkovník (Ficus)</a><br><a href='https://cs.wikipedia.org/wiki/Ak%C3%A1cie' target='_blank'>Akácie (Acacia)</a><br><a href='https://cs.wikipedia.org/wiki/Sekvoj' target='_blank'>Sekvoj (Sequoia)</a><br><a href='https://cs.wikipedia.org/wiki/Chaluha' target='_blank'>Chaluhy (Laminariales)</a><br><a href='https://cs.wikipedia.org/wiki/Ra%C5%A1elin%C3%ADk' target='_blank'>Rašeliník (Sphagnum)</a><br><a href='https://cs.wikipedia.org/wiki/Mangrovy' target='_blank'>Mangrovy (Rhizophoraceae)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="pleistocene-species" data-title="Významné druhy pleistocénu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Siegsdorfer_Mammut.jpg/960px-Siegsdorfer_Mammut.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové patřili k nejcharakterističtější velká fauně pleistocénu. Mnohé z těchto druhů zmizely během masového vymírání pleistocenní megafauny.<br><br><a href='https://cs.wikipedia.org/wiki/Mamut_srstnat%C3%BD' target='_blank'>Mamut srstnatý (Mammuthus primigenius)</a><br><a href='https://cs.wikipedia.org/wiki/Nosoro%C5%BEec_srstnat%C3%BD' target='_blank'>Nosorožec srstnatý (Coelodonta antiquitatis)</a><br><a href='https://cs.wikipedia.org/wiki/Lev_jeskynn%C3%AD' target='_blank'>Lev jeskynní (Panthera spelaea)</a><br><a href='https://cs.wikipedia.org/wiki/Smilodon' target='_blank'>Šavlozubý tygr (Smilodon fatalis)</a><br><a href='https://cs.wikipedia.org/wiki/Megatherium' target='_blank'>Obří pozemní lenochod (Megatherium americanum)</a><br><a href='https://cs.wikipedia.org/wiki/Megaloceros' target='_blank'>Veledaněk obrovský (Megaloceros giganteus)</a><br><a href='https://cs.wikipedia.org/wiki/Medv%C4%9Bd_jeskynn%C3%AD' target='_blank'>Medvěd jeskynní (Ursus spelaeus)</a><br><a href='https://cs.wikipedia.org/wiki/Homo_sapiens' target='_blank'>Člověk moudrý (Homo sapiens)</a><br><a href='https://cs.wikipedia.org/wiki/Neandrt%C3%A1lec' target='_blank'>Neandrtálec (Homo neanderthalensis)</a><br><a href='https://cs.wikipedia.org/wiki/Aenocyon_dirus' target='_blank'>Vlk strašný (Aenocyon dirus)</a><br><br>Následující rostliny byly široce rozšířeny v pleistocenní krajině, zejména během střídání glaciálních a interglaciálních cyklů.<br><br><a href='https://cs.wikipedia.org/wiki/Lipnicovit%C3%A9' target='_blank'>Trávy (čeleď Poaceae)</a><br><a href='https://cs.wikipedia.org/wiki/B%C5%99%C3%ADza' target='_blank'>Bříza (Betula)</a><br><a href='https://cs.wikipedia.org/wiki/Borovice' target='_blank'>Borovice (Pinus)</a><br><a href='https://cs.wikipedia.org/wiki/Smrk' target='_blank'>Smrk (Picea)</a><br><a href='https://cs.wikipedia.org/wiki/Vrba' target='_blank'>Vrba (Salix)</a><br><a href='https://cs.wikipedia.org/wiki/Pelyn%C4%9Bk' target='_blank'>Pelyněk (Artemisia)</a><br><a href='https://cs.wikipedia.org/wiki/Dub' target='_blank'>Dub (Quercus)</a><br><a href='https://cs.wikipedia.org/wiki/Ol%C5%A1e' target='_blank'>Olše (Alnus)</a><br><a href='https://cs.wikipedia.org/wiki/Ol%C5%A1e_(rod)' target='_blank'>Ostřice (Carex)</a><br><a href='https://cs.wikipedia.org/wiki/P%C5%99esli%C4%8Dka' target='_blank'>Přeslička (Equisetum)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="pliocene-species" data-title="Významné druhy pliocénu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Mrs_Ples_Face.jpg/960px-Mrs_Ples_Face.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují dominantní a nejvýznamnější faunu pliocénu, období aktivního vývoje homininů a výměny fauny mezi kontinenty.<br><br><a href='https://cs.wikipedia.org/wiki/Australopithecus' target='_blank'>Australopithecus (Australopithecus afarensis)</a><br><a href='https://cs.wikipedia.org/wiki/Mastodont' target='_blank'>Mastodont americký (Mammut americanum)</a><br><a href='https://cs.wikipedia.org/w/index.php?search=Pliohippus&ns0=1&ns100=1&ns102=1' target='_blank'>Pliocenní kůň (Pliohippus)</a><br><a href='https://cs.wikipedia.org/wiki/Smilodon' target='_blank'>Šavlozubý tygr (Smilodon)</a><br><a href='https://cs.wikipedia.org/wiki/Sivatherium' target='_blank'>Sivatherium (Sivatherium giganteum)</a><br><a href='https://cs.wikipedia.org/wiki/Dinofelis' target='_blank'>Dinofelis (Dinofelis barlowi)</a><br><a href='https://cs.wikipedia.org/wiki/Megatherium' target='_blank'>Obří pozemní lenochod (Megatherium)</a><br><a href='https://cs.wikipedia.org/wiki/Mamut' target='_blank'>Raný mamut (Mammuthus meridionalis)</a><br><a href='https://cs.wikipedia.org/w/index.php?search=Agriotherium&ns0=1&ns100=1&ns102=1' target='_blank'>Obří medvěd (Agriotherium africanum)</a><br><a href='https://cs.wikipedia.org/w/index.php?search=Paracamelus&ns0=1&ns100=1&ns102=1' target='_blank'>Pliocenní velbloud (Paracamelus)</a><br><br>Následující rostliny byly široce rozšířeny v pliocenní krajině, která přecházela z lesů na otevřené travnaté plochy.<br><br><a href='https://cs.wikipedia.org/wiki/Lipnicovité' target='_blank'>Trávy (čeleď Poaceae)</a><br><a href='https://cs.wikipedia.org/wiki/Akácie' target='_blank'>Akácie (Acacia)</a><br><a href='https://cs.wikipedia.org/wiki/Dub' target='_blank'>Dub (Quercus)</a><br><a href='https://cs.wikipedia.org/wiki/Sekvoj' target='_blank'>Sekvoj (Sequoia)</a><br><a href='https://cs.wikipedia.org/wiki/Borovice' target='_blank'>Borovice (Pinus)</a><br><a href='https://cs.wikipedia.org/wiki/Šácholan' target='_blank'>Magnólie (Magnolia)</a><br><a href='https://cs.wikipedia.org/wiki/Fíkovník' target='_blank'>Fíkovník (Ficus)</a><br><a href='https://cs.wikipedia.org/wiki/Arekovité' target='_blank'>Palmy (Arecaceae)</a><br><a href='https://cs.wikipedia.org/wiki/Jinan_dvoulaločný' target='_blank'>Jinan (Ginkgo biloba)</a><br><a href='https://cs.wikipedia.org/wiki/Javor' target='_blank'>Javor (Acer)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="miocene-species" data-title="Významné druhy miocénu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Dryopithecus_fontani_mio_med_francia.JPG/960px-Dryopithecus_fontani_mio_med_francia.JPG' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují dominantní faunu miocénu, období rozsáhlé diverzifikace lidoopů a globálního šíření travnatých ploch.<br><br><a href='https://cs.wikipedia.org/wiki/Dryopithecus' target='_blank'>Raný lidoop (Dryopithecus)</a><br><a href='https://cs.wikipedia.org/w/index.php?search=Merychippus&ns0=1&ns100=1&ns102=1' target='_blank'>Miocenní kůň (Merychippus)</a><br><a href='https://cs.wikipedia.org/wiki/Gomphotherium' target='_blank'>Gomphotherium</a><br><a href='https://cs.wikipedia.org/wiki/Deinotherium' target='_blank'>Deinotherium (Deinotherium giganteum)</a><br><a href='https://cs.wikipedia.org/w/index.php?search=Amphicyon&ns0=1&ns100=1&ns102=1' target='_blank'>Medvědopes (Amphicyon)</a><br><a href='https://cs.wikipedia.org/wiki/Sivapithecus' target='_blank'>Sivapithecus</a><br><a href='https://cs.wikipedia.org/wiki/Proconsul_(rod)' target='_blank'>Proconsul (Proconsul africanus)</a><br><a href='https://cs.wikipedia.org/wiki/Moropus' target='_blank'>Moropus (Moropus elatus)</a><br><a href='https://cs.wikipedia.org/wiki/Paraceratherium' target='_blank'>Obří nosorožec (Paraceratherium)</a><br><a href='https://cs.wikipedia.org/wiki/Megalodon' target='_blank'>Megalodon (Otodus megalodon)</a><br><br>Následující rostliny dominovaly miocenní krajině, přičemž v této epoše došlo k dramatickému rozšíření trav.<br><br><a href='https://cs.wikipedia.org/wiki/Lipnicovit%C3%A9' target='_blank'>Trávy (čeleď Poaceae)</a><br><a href='https://cs.wikipedia.org/wiki/Macrocystis_pyrifera' target='_blank'>Obří chaluha (Macrocystis pyrifera)</a><br><a href='https://cs.wikipedia.org/wiki/Dub' target='_blank'>Dub (Quercus)</a><br><a href='https://cs.wikipedia.org/wiki/Borovice' target='_blank'>Borovice (Pinus)</a><br><a href='https://cs.wikipedia.org/wiki/Buk' target='_blank'>Buk (Fagus)</a><br><a href='https://cs.wikipedia.org/wiki/%C5%A0%C3%A1cholan' target='_blank'>Magnólie (Magnolia)</a><br><a href='https://cs.wikipedia.org/wiki/Jinan_dvoulalo%C4%8Dn%C3%BD' target='_blank'>Jinan (Ginkgo biloba)</a><br><a href='https://cs.wikipedia.org/wiki/Arekovit%C3%A9' target='_blank'>Palmy (Arecaceae)</a><br><a href='https://cs.wikipedia.org/wiki/Javor' target='_blank'>Javor (Acer)</a><br><a href='https://cs.wikipedia.org/wiki/F%C3%ADkovn%C3%ADk' target='_blank'>Fíkovník (Ficus)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="oligocene-species" data-title="Významné druhy oligocénu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Mesohippus_barbouri_Harvard.jpg/960px-Mesohippus_barbouri_Harvard.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové patřili k nejvýznamnější fauně oligocénu, období, kdy se po ochlazení v eocénu začali rychle rozvíjet savci.<br><br><a href='https://cs.wikipedia.org/w/index.php?search=Mesohippus&ns0=1&ns100=1&ns102=1' target='_blank'>Raný kůň (Mesohippus)</a><br><a href='https://cs.wikipedia.org/wiki/Paraceratherium' target='_blank'>Paraceratherium - největší suchozemský savec všech dob</a><br><a href='https://cs.wikipedia.org/wiki/Entelodon' target='_blank'>Entelodont</a><br><a href='https://cs.wikipedia.org/wiki/Dorudon' target='_blank'>Raná velryba (Dorudon)</a><br><a href='https://cs.wikipedia.org/wiki/Nimravidae' target='_blank'>Nepravý šavlozubý tygr (Nimravus)</a><br><a href='https://cs.wikipedia.org/w/index.php?search=Cynodictis&ns0=1&ns100=1&ns102=1&searchToken=58amu816wiu1hl2lxgy9uyez3' target='_blank'>Raný předek psa (Cynodictis)</a><br><a href='https://www.wikidata.org/wiki/Q519252' target='_blank'>Archaeotherium (Archaeotherium mortoni)</a><br><a href='https://cs.wikipedia.org/wiki/Anthracotheriidae' target='_blank'>Anthracotherium</a><br><a href='https://en.wikipedia.org/wiki/Merycoidodon' target='_blank'>Hyaenodon (Hyaenodon horridus)</a><br><a href='https://cs.wikipedia.org/wiki/Merycoidodon' target='_blank'>Oreodont (Merycoidodon)</a><br><br>Následující rostliny byly rozšířeny v krajině oligocénu, kdy ustupovaly tropické lesy a šířily se otevřené lesostepi.<br><br><a href='https://cs.wikipedia.org/wiki/Dub' target='_blank'>Dub (Quercus)</a><br><a href='https://cs.wikipedia.org/wiki/Buk' target='_blank'>Buk (Fagus)</a><br><a href='https://cs.wikipedia.org/wiki/Sekvoj' target='_blank'>Sekvoj (Sequoia)</a><br><a href='https://cs.wikipedia.org/wiki/Arekovité' target='_blank'>Palmy (čeleď Arecaceae)</a><br><a href='https://cs.wikipedia.org/wiki/Fíkovník' target='_blank'>Fíkovník (Ficus)</a><br><a href='https://cs.wikipedia.org/wiki/Šácholan' target='_blank'>Magnólie (Magnolia)</a><br><a href='https://cs.wikipedia.org/wiki/Jinan_dvoulaločný' target='_blank'>Jinan (Ginkgo biloba)</a><br><a href='https://cs.wikipedia.org/wiki/Borovice' target='_blank'>Borovice (Pinus)</a><br><a href='https://cs.wikipedia.org/wiki/Lipnicovité' target='_blank'>Rané trávy (čeleď Poaceae)</a><br><a href='https://cs.wikipedia.org/wiki/Kapradiny' target='_blank'>Kapradina (třída Polypodiopsida)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="eocene-species" data-title="Významné druhy eocénu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Pachycetus_paulsoni.png/960px-Pachycetus_paulsoni.png' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové patřili k nejvýznamnější fauně eocénu, kdy se vytvářely základy moderních řádů savců.<br><br><a href='https://cs.wikipedia.org/w/index.php?search=Pachycetus&ns0=1&ns100=1&ns102=1' target='_blank'>Raná velryba (Pachycetus)</a><br><a href='https://cs.wikipedia.org/wiki/Hyracotherium' target='_blank'>Raný kůň (Hyracotherium)</a><br><a href='https://cs.wikipedia.org/wiki/Uintatherium' target='_blank'>Uintatherium (Uintatherium anceps)</a><br><a href='https://cs.wikipedia.org/wiki/Andrewsarchus' target='_blank'>Andrewsarchus (Andrewsarchus mongoliensis)</a><br><a href='https://cs.wikipedia.org/wiki/Gastornis' target='_blank'>Obří nelétavý pták (Gastornis)</a><br><a href='https://cs.wikipedia.org/wiki/Ambulocetus' target='_blank'>„Chodící kytovec“ (Ambulocetus)</a><br><a href='https://cs.wikipedia.org/w/index.php?search=Brontotheriidae&ns0=1&ns100=1&ns102=1' target='_blank'>Brontotherium (čeleď Brontotheriidae)</a><br><a href='https://cs.wikipedia.org/wiki/Creodonta' target='_blank'>Creodont (řád Creodonta)</a><br><a href='https://cs.wikipedia.org/w/index.php?search=Mesonyx&ns0=1&ns100=1&ns102=1' target='_blank'>Mesonyx (Mesonyx obtusidens)</a><br><a href='https://cs.wikipedia.org/wiki/Propalaeotherium' target='_blank'>Propalaeotherium</a><br><br>Následující rostliny dominovaly teplému a vlhkému světu eocénu, přičemž tropické lesy sahaly až do vysokých zeměpisných šířek.<br><br><a href='https://cs.wikipedia.org/wiki/Nypa_fruticans' target='_blank'>Palma nypa (Nypa fruticans)</a><br><a href='https://cs.wikipedia.org/wiki/Fíkovník' target='_blank'>Fíkovník (Ficus)</a><br><a href='https://cs.wikipedia.org/wiki/Šácholan' target='_blank'>Magnólie (Magnolia)</a><br><a href='https://cs.wikipedia.org/wiki/Sekvoj' target='_blank'>Sekvoj (Sequoia)</a><br><a href='https://cs.wikipedia.org/wiki/Jinan_dvoulaločný' target='_blank'>Jinan (Ginkgo biloba)</a><br><a href='https://cs.wikipedia.org/wiki/Buk' target='_blank'>Buk (Fagus)</a><br><a href='https://cs.wikipedia.org/wiki/Cykasy' target='_blank'>Cykas (oddělení Cycadophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Kapradiny' target='_blank'>Kapradina (třída Polypodiopsida)</a><br><a href='https://cs.wikipedia.org/wiki/Arekovité' target='_blank'>Palmy (čeleď Arecaceae)</a><br><a href='https://cs.wikipedia.org/wiki/Dub' target='_blank'>Raný dub (Quercus)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="paleocene-species" data-title="Významné druhy paleocénu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Plesiadapis_UMMNH.jpg/960px-Plesiadapis_UMMNH.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují nejranější faunu po velkém vymírání - malé, nespecializované savce, kteří začali zaplňovat ekologické niky uvolněné po vyhynutí neptačích dinosaurů.<br><br><a href='https://cs.wikipedia.org/wiki/Plesiadapis' target='_blank'>Raný primát (Plesiadapis)</a><br><a href='https://cs.wikipedia.org/wiki/Pantodonta' target='_blank'>Pantodont (řád Pantodonta)</a><br><a href='https://cs.wikipedia.org/wiki/Condylarthra' target='_blank'>Condylarthra (řád Condylarthra)</a><br><a href='https://cs.wikipedia.org/wiki/Gastornis' target='_blank'>Obří nelétavý pták (Gastornis)</a><br><a href='https://cs.wikipedia.org/wiki/Taeniodonta' target='_blank'>Taeniodont (řád Taeniodonta)</a><br><a href='https://cs.wikipedia.org/wiki/Multituberculata' target='_blank'>Vícenhrbolatí (řád Multituberculata)</a><br><a href='https://cs.wikipedia.org/wiki/Champsosaurus' target='_blank'>Champsosaurus</a><br><a href='https://cs.wikipedia.org/wiki/Mesonychia' target='_blank'>Mesonychid (čeleď Mesonychidae)</a><br><a href='https://cs.wikipedia.org/wiki/Tillodontia' target='_blank'>Tillodont (řád Tillodontia)</a><br><a href='https://cs.wikipedia.org/wiki/Creodonta' target='_blank'>Creodont (řád Creodonta)</a><br><br>Následující rostliny dominovaly krajině paleocénu a rychle se zotavovaly po vymírání na hranici křída-paleogén.<br><br><a href='https://cs.wikipedia.org/wiki/Kapradiny' target='_blank'>Kapradina (třída Polypodiopsida)</a><br><a href='https://cs.wikipedia.org/wiki/Šácholan' target='_blank'>Magnólie (Magnolia)</a><br><a href='https://cs.wikipedia.org/wiki/Arekovité' target='_blank'>Palmy (čeleď Arecaceae)</a><br><a href='https://cs.wikipedia.org/wiki/Sekvoj' target='_blank'>Sekvoj (Sequoia)</a><br><a href='https://cs.wikipedia.org/wiki/Jinan_dvoulaločný' target='_blank'>Jinan (Ginkgo biloba)</a><br><a href='https://cs.wikipedia.org/wiki/Cykasy' target='_blank'>Cykas (oddělení Cycadophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Buk' target='_blank'>Buk (Fagus)</a><br><a href='https://cs.wikipedia.org/wiki/Fíkovník' target='_blank'>Fíkovník (Ficus)</a><br><a href='https://cs.wikipedia.org/wiki/Přeslička' target='_blank'>Přeslička (Equisetum)</a><br><a href='https://cs.wikipedia.org/wiki/Platan' target='_blank'>Platan (Platanus)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="cretaceous-species" data-title="Významné druhy křídy" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Scotty_Tyrannosaurus.jpg/960px-Scotty_Tyrannosaurus.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují ikonickou faunu křídy - vrchol rozmanitosti dinosaurů, který skončil hromadným vymíráním v době před 66 miliony let.<br><br><a href='https://cs.wikipedia.org/wiki/Tyrannosaurus' target='_blank'>Tyrannosaurus rex</a><br><a href='https://cs.wikipedia.org/wiki/Triceratops' target='_blank'>Triceratops (Triceratops horridus)</a><br><a href='https://cs.wikipedia.org/wiki/Velociraptor' target='_blank'>Velociraptor (Velociraptor mongoliensis)</a><br><a href='https://cs.wikipedia.org/wiki/Spinosaurus' target='_blank'>Spinosaurus (Spinosaurus aegyptiacus)</a><br><a href='https://cs.wikipedia.org/wiki/Mosasaurus' target='_blank'>Mosasaurus (Mosasaurus hoffmannii)</a><br><a href='https://cs.wikipedia.org/wiki/Pteranodon' target='_blank'>Pteranodon (Pteranodon longiceps)</a><br><a href='https://cs.wikipedia.org/wiki/Ankylosaurus' target='_blank'>Ankylosaurus (Ankylosaurus magniventris)</a><br><a href='https://cs.wikipedia.org/wiki/Pachycephalosaurus' target='_blank'>Pachycephalosaurus (Pachycephalosaurus wyomingensis)</a><br><a href='https://cs.wikipedia.org/wiki/Edmontosaurus' target='_blank'>Edmontosaurus (Edmontosaurus regalis)</a><br><a href='https://cs.wikipedia.org/wiki/Elasmosaurus' target='_blank'>Elasmosaurus (Elasmosaurus platyurus)</a><br><br>Následující rostliny byly v období křídy široce rozšířeny, přičemž nejvýznamnější byl explozivní rozvoj kvetoucích rostlin.<br><br><a href='https://cs.wikipedia.org/wiki/Krytosemenné' target='_blank'>Kvetoucí rostliny (Angiospermae)</a><br><a href='https://cs.wikipedia.org/wiki/Šácholan' target='_blank'>Magnólie (Magnolia)</a><br><a href='https://cs.wikipedia.org/wiki/Kapradiny' target='_blank'>Kapradina (třída Polypodiopsida)</a><br><a href='https://cs.wikipedia.org/wiki/Blaho%C4%8Det' target='_blank'>Blahočet (Araucaria)</a><br><a href='https://cs.wikipedia.org/wiki/Sekvoj' target='_blank'>Sekvoj (Sequoia)</a><br><a href='https://cs.wikipedia.org/wiki/Cykasy' target='_blank'>Cykas (oddělení Cycadophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Jinan_dvoulaločný' target='_blank'>Jinan (Ginkgo biloba)</a><br><a href='https://cs.wikipedia.org/wiki/Leknín' target='_blank'>Leknín (Nymphaea)</a><br><a href='https://cs.wikipedia.org/wiki/Fíkovník' target='_blank'>Fíkovník (Ficus)</a><br><a href='https://cs.wikipedia.org/wiki/Přeslička' target='_blank'>Přeslička (Equisetum)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="jurassic-species" data-title="Významné druhy jury" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Brachiosaurus_skull_cast_Denver_3.jpg/960px-Brachiosaurus_skull_cast_Denver_3.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují ikonickou faunu jury - období, kterému dominovali obrovští sauropodi, draví theropodi a první ptáci.<br><br><a href='https://cs.wikipedia.org/wiki/Brachiosaurus' target='_blank'>Brachiosaurus (Brachiosaurus altithorax)</a><br><a href='https://cs.wikipedia.org/wiki/Stegosaurus' target='_blank'>Stegosaurus (Stegosaurus stenops)</a><br><a href='https://cs.wikipedia.org/wiki/Allosaurus' target='_blank'>Allosaurus (Allosaurus fragilis)</a><br><a href='https://cs.wikipedia.org/wiki/Diplodocus' target='_blank'>Diplodocus (Diplodocus carnegii)</a><br><a href='https://cs.wikipedia.org/wiki/Archaeopteryx' target='_blank'>Archaeopteryx - první pták (Archaeopteryx lithographica)</a><br><a href='https://cs.wikipedia.org/wiki/Pterodactylus' target='_blank'>Pterodactylus (Pterodactylus antiquus)</a><br><a href='https://cs.wikipedia.org/wiki/Ichthyosaurus' target='_blank'>Ichthyosaurus (Ichthyosaurus communis)</a><br><a href='https://cs.wikipedia.org/wiki/Plesiosaurus' target='_blank'>Plesiosaurus (Plesiosaurus dolichodeirus)</a><br><a href='https://cs.wikipedia.org/wiki/Compsognathus' target='_blank'>Compsognathus (Compsognathus longipes)</a><br><a href='https://cs.wikipedia.org/wiki/Ceratosaurus' target='_blank'>Ceratosaurus (Ceratosaurus nasicornis)</a><br><br>Následující rostliny pokrývaly bujný a teplý jurský svět hustými lesy - kvetoucí rostliny se v této době ještě nevyvinuly.<br><br><a href='https://cs.wikipedia.org/wiki/Cykasy' target='_blank'>Cykas (oddělení Cycadophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Blahočet' target='_blank'>Blahočet (Araucaria)</a><br><a href='https://cs.wikipedia.org/wiki/Jinan_dvoulaločný' target='_blank'>Jinan (Ginkgo biloba)</a><br><a href='https://cs.wikipedia.org/wiki/Kapradiny' target='_blank'>Kapradina (třída Polypodiopsida)</a><br><a href='https://cs.wikipedia.org/wiki/Přeslička' target='_blank'>Přeslička (Equisetum)</a><br><a href='https://cs.wikipedia.org/wiki/Benetity' target='_blank'>Benetity (Bennettitales)</a><br><a href='https://cs.wikipedia.org/wiki/Cyatheales' target='_blank'>Stromová kapradina (řád Cyatheales)</a><br><a href='https://cs.wikipedia.org/wiki/Sekvoj' target='_blank'>Předek sekvoje (Sequoia)</a><br><a href='https://cs.wikipedia.org/wiki/Jehličnany' target='_blank'>Jehličnan z čeledi Cheirolepidiaceae</a><br><a href='https://cs.wikipedia.org/wiki/Plavuňovité' target='_blank'>Plavuň (Lycopodium)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="triassic-species" data-title="Významné druhy triasu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Coelophysis_bauri_mount.jpg/960px-Coelophysis_bauri_mount.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují faunu triasu - světa, který se zotavoval z „velkého vymírání“ a ve kterém se objevili první dinosauři a savci.<br><br><a href='https://cs.wikipedia.org/wiki/Coelophysis' target='_blank'>Coelophysis - raný dinosaurus (Coelophysis bauri)</a><br><a href='https://cs.wikipedia.org/wiki/Plateosaurus' target='_blank'>Plateosaurus (Plateosaurus engelhardti)</a><br><a href='https://cs.wikipedia.org/wiki/Eoraptor' target='_blank'>Eoraptor - nejranější dinosaurus (Eoraptor lunensis)</a><br><a href='https://cs.wikipedia.org/wiki/Postosuchus' target='_blank'>Postosuchus (Postosuchus kirkpatricki)</a><br><a href='https://cs.wikipedia.org/wiki/Nothosaurus' target='_blank'>Nothosaurus</a><br><a href='https://cs.wikipedia.org/wiki/Tanystrosuchus' target='_blank'>Tanystropheus (Tanystropheus hydroides)</a><br><a href='https://cs.wikipedia.org/wiki/Cynognathus' target='_blank'>Cynognathus - savcovitý plaz (Cynognathus crateronotus)</a><br><a href='https://cs.wikipedia.org/wiki/Shonisaurus' target='_blank'>Shonisaurus - obří ichthyosaurus (Shonisaurus popularis)</a><br><a href='https://cs.wikipedia.org/wiki/Megazostrodon' target='_blank'>Megazostrodon - raný savec (Megazostrodon rudnerae)</a><br><a href='https://cs.wikipedia.org/wiki/Lystrosaurus' target='_blank'>Lystrosaurus (Lystrosaurus murrayi)</a><br><br>Následující rostliny dominovaly suchému a horkému světu triasu - kvetoucí rostliny se v této době ještě neobjevily.<br><br><a href='https://cs.wikipedia.org/wiki/Cykasy' target='_blank'>Cykas (oddělení Cycadophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Jehličnany' target='_blank'>Jehličnan (oddělení Pinophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Kapradiny' target='_blank'>Kapradina (třída Polypodiopsida)</a><br><a href='https://cs.wikipedia.org/wiki/Přeslička' target='_blank'>Přeslička (Equisetum)</a><br><a href='https://cs.wikipedia.org/wiki/Jinan_dvoulaločný' target='_blank'>Jinan (Ginkgo biloba)</a><br><a href='https://en.wikipedia.org/wiki/Dicroidium' target='_blank'>Dicroidium (kapradosemenná rostlina)</a><br><a href='https://cs.wikipedia.org/wiki/Benetity' target='_blank'>Benetity (Bennettitales)</a><br><a href='https://cs.wikipedia.org/wiki/Cyatheales' target='_blank'>Stromová kapradina (řád Cyatheales)</a><br><a href='https://en.wikipedia.org/wiki/Pleuromeia' target='_blank'>Pleuromeia</a><br><a href='https://cs.wikipedia.org/wiki/Plavuňovité' target='_blank'>Plavuň (Lycopodium)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="triassic-species2" data-title="Významné druhy triasu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Coelophysis_bauri_mount.jpg/960px-Coelophysis_bauri_mount.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují faunu triasu - světa, který se zotavoval z „velkého vymírání“ a ve kterém se objevili první dinosauři a savci.<br><br><a href='https://cs.wikipedia.org/wiki/Coelophysis' target='_blank'>Coelophysis - raný dinosaurus (Coelophysis bauri)</a><br><a href='https://cs.wikipedia.org/wiki/Plateosaurus' target='_blank'>Plateosaurus (Plateosaurus engelhardti)</a><br><a href='https://cs.wikipedia.org/wiki/Eoraptor' target='_blank'>Eoraptor - nejranější dinosaurus (Eoraptor lunensis)</a><br><a href='https://cs.wikipedia.org/wiki/Postosuchus' target='_blank'>Postosuchus (Postosuchus kirkpatricki)</a><br><a href='https://cs.wikipedia.org/wiki/Nothosaurus' target='_blank'>Nothosaurus</a><br><a href='https://cs.wikipedia.org/wiki/Tanystrosuchus' target='_blank'>Tanystropheus (Tanystropheus hydroides)</a><br><a href='https://cs.wikipedia.org/wiki/Cynognathus' target='_blank'>Cynognathus - savcovitý plaz (Cynognathus crateronotus)</a><br><a href='https://cs.wikipedia.org/wiki/Shonisaurus' target='_blank'>Shonisaurus - obří ichthyosaurus (Shonisaurus popularis)</a><br><a href='https://cs.wikipedia.org/wiki/Megazostrodon' target='_blank'>Megazostrodon - raný savec (Megazostrodon rudnerae)</a><br><a href='https://cs.wikipedia.org/wiki/Lystrosaurus' target='_blank'>Lystrosaurus (Lystrosaurus murrayi)</a><br><br>Následující rostliny dominovaly suchému a horkému světu triasu - kvetoucí rostliny se v této době ještě neobjevily.<br><br><a href='https://cs.wikipedia.org/wiki/Cykasy' target='_blank'>Cykas (oddělení Cycadophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Jehličnany' target='_blank'>Jehličnan (oddělení Pinophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Kapradiny' target='_blank'>Kapradina (třída Polypodiopsida)</a><br><a href='https://cs.wikipedia.org/wiki/Přeslička' target='_blank'>Přeslička (Equisetum)</a><br><a href='https://cs.wikipedia.org/wiki/Jinan_dvoulaločný' target='_blank'>Jinan (Ginkgo biloba)</a><br><a href='https://en.wikipedia.org/wiki/Dicroidium' target='_blank'>Dicroidium (kapradosemenná rostlina)</a><br><a href='https://cs.wikipedia.org/wiki/Benetity' target='_blank'>Benetity (Bennettitales)</a><br><a href='https://cs.wikipedia.org/wiki/Cyatheales' target='_blank'>Stromová kapradina (řád Cyatheales)</a><br><a href='https://en.wikipedia.org/wiki/Pleuromeia' target='_blank'>Pleuromeia</a><br><a href='https://cs.wikipedia.org/wiki/Plavuňovité' target='_blank'>Plavuň (Lycopodium)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="permian-species" data-title="Významné druhy permu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Dimetrodon_incisivum_01.jpg/960px-Dimetrodon_incisivum_01.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují dominantní faunu permu, který skončil nejzávažnějším hromadným vymíráním v historii Země.<br><br><a href='https://cs.wikipedia.org/wiki/Dimetrodon' target='_blank'>Dimetrodon (Dimetrodon limbatus)</a><br><a href='https://cs.wikipedia.org/wiki/Edaphosaurus' target='_blank'>Edaphosaurus (Edaphosaurus pogonias)</a><br><a href='https://cs.wikipedia.org/wiki/Gorgonopsia' target='_blank'>Gorgonopsid (Gorgonopsia)</a><br><a href='https://cs.wikipedia.org/wiki/Lystrosaurus' target='_blank'>Lystrosaurus (Lystrosaurus murrayi)</a><br><a href='https://cs.wikipedia.org/wiki/Scutosaurus' target='_blank'>Scutosaurus (Scutosaurus karpinskii)</a><br><a href='https://cs.wikipedia.org/wiki/Dicynodontia' target='_blank'>Dicynodon (Dicynodon lacerticeps)</a><br><a href='https://cs.wikipedia.org/wiki/Moschops' target='_blank'>Moschops (Moschops capensis)</a><br><a href='https://cs.wikipedia.org/wiki/Anteosaurus' target='_blank'>Anteosaurus (Anteosaurus magnificus)</a><br><a href='https://en.wikipedia.org/wiki/Mesosaurus' target='_blank'>Mesosaurus (Mesosaurus tenuidens)</a><br><a href='https://en.wikipedia.org/wiki/Bradysaurus' target='_blank'>Bradysaurus (Bradysaurus baini)</a><br><br>Následující rostliny dominovaly permské krajině, přičemž uhelné bažinaté lesy Gondwany ustupovaly sušším jehličnatým lesům.<br><br><a href='https://en.wikipedia.org/wiki/Glossopteris' target='_blank'>Glossopteris (kapradosemenná rostlina)</a><br><a href='https://en.wikipedia.org/wiki/Gangamopteris' target='_blank'>Gangamopteris</a><br><a href='https://cs.wikipedia.org/wiki/Jehličnany' target='_blank'>Jehličnan (čeleď Walchiaceae)</a><br><a href='https://cs.wikipedia.org/wiki/Cykasy' target='_blank'>Cykas (oddělení Cycadophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Přeslička' target='_blank'>Přeslička / Calamites (Equisetum)</a><br><a href='https://cs.wikipedia.org/wiki/Kordaity' target='_blank'>Kordait (řád Cordaitales)</a><br><a href='https://cs.wikipedia.org/wiki/Cyatheales' target='_blank'>Stromová kapradina (řád Cyatheales)</a><br><a href='https://cs.wikipedia.org/wiki/Plavun%C4%9B' target='_blank'>Plavuně (Lycopodiophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Kapra%C4%8Fosemenn%C3%A9' target='_blank'>Medullosa (kapradosemenná rostlina)</a><br><a href='https://cs.wikipedia.org/wiki/Kapradiny' target='_blank'>Kapradina (třída Polypodiopsida)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="permian-species2" data-title="Významné druhy permu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Dimetrodon_incisivum_01.jpg/960px-Dimetrodon_incisivum_01.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují dominantní faunu permu, který skončil nejzávažnějším hromadným vymíráním v historii Země.<br><br><a href='https://cs.wikipedia.org/wiki/Dimetrodon' target='_blank'>Dimetrodon (Dimetrodon limbatus)</a><br><a href='https://cs.wikipedia.org/wiki/Edaphosaurus' target='_blank'>Edaphosaurus (Edaphosaurus pogonias)</a><br><a href='https://cs.wikipedia.org/wiki/Gorgonopsia' target='_blank'>Gorgonopsid (Gorgonopsia)</a><br><a href='https://cs.wikipedia.org/wiki/Lystrosaurus' target='_blank'>Lystrosaurus (Lystrosaurus murrayi)</a><br><a href='https://cs.wikipedia.org/wiki/Scutosaurus' target='_blank'>Scutosaurus (Scutosaurus karpinskii)</a><br><a href='https://cs.wikipedia.org/wiki/Dicynodontia' target='_blank'>Dicynodon (Dicynodon lacerticeps)</a><br><a href='https://cs.wikipedia.org/wiki/Moschops' target='_blank'>Moschops (Moschops capensis)</a><br><a href='https://cs.wikipedia.org/wiki/Anteosaurus' target='_blank'>Anteosaurus (Anteosaurus magnificus)</a><br><a href='https://en.wikipedia.org/wiki/Mesosaurus' target='_blank'>Mesosaurus (Mesosaurus tenuidens)</a><br><a href='https://en.wikipedia.org/wiki/Bradysaurus' target='_blank'>Bradysaurus (Bradysaurus baini)</a><br><br>Následující rostliny dominovaly permské krajině, přičemž uhelné bažinaté lesy Gondwany ustupovaly sušším jehličnatým lesům.<br><br><a href='https://en.wikipedia.org/wiki/Glossopteris' target='_blank'>Glossopteris (kapradosemenná rostlina)</a><br><a href='https://en.wikipedia.org/wiki/Gangamopteris' target='_blank'>Gangamopteris</a><br><a href='https://cs.wikipedia.org/wiki/Jehličnany' target='_blank'>Jehličnan (čeleď Walchiaceae)</a><br><a href='https://cs.wikipedia.org/wiki/Cykasy' target='_blank'>Cykas (oddělení Cycadophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Přeslička' target='_blank'>Přeslička / Calamites (Equisetum)</a><br><a href='https://cs.wikipedia.org/wiki/Kordaity' target='_blank'>Kordait (řád Cordaitales)</a><br><a href='https://cs.wikipedia.org/wiki/Cyatheales' target='_blank'>Stromová kapradina (řád Cyatheales)</a><br><a href='https://cs.wikipedia.org/wiki/Plavun%C4%9B' target='_blank'>Plavuně (Lycopodiophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Kapra%C4%8Fosemenn%C3%A9' target='_blank'>Medullosa (kapradosemenná rostlina)</a><br><a href='https://cs.wikipedia.org/wiki/Kapradiny' target='_blank'>Kapradina (třída Polypodiopsida)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="pennsylvanian-species" data-title="Významné druhy svrchního karbonu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Arthropleura_sp._MNHN.F.SOT002122.jpg/960px-Arthropleura_sp._MNHN.F.SOT002122.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují faunu svrchního karbonu - světa bohatého na kyslík s rozsáhlými uhelnými bažinami, kde ovzduší ovládali obří hmyz a kde se objevili první plazi.<br><br><a href='https://cs.wikipedia.org/wiki/Arthropleura' target='_blank'>Arthropleura - obří stonožka (Arthropleura armata)</a><br><a href='https://cs.wikipedia.org/wiki/Meganeura' target='_blank'>Meganeura - obří vážka (Meganeura monyi)</a><br><a href='https://cs.wikipedia.org/wiki/Eryops' target='_blank'>Eryops - raný obojživelník (Eryops megacephalus)</a><br><a href='https://cs.wikipedia.org/wiki/Hylonomus' target='_blank'>Hylonomus - nejstarší známý plaz (Hylonomus lyelli)</a><br><a href='https://cs.wikipedia.org/wiki/Ophiacodontidae' target='_blank'>Ophiacodon (Ophiacodon uniformis)</a><br><a href='https://cs.wikipedia.org/wiki/Petrolacosaurus' target='_blank'>Petrolacosaurus (Petrolacosaurus kansensis)</a><br><a href='https://cs.wikipedia.org/wiki/Embolomeri' target='_blank'>Proterogyrinus (Proterogyrinus scheelei)</a><br><a href='https://en.wikipedia.org/wiki/Westlothiana' target='_blank'>Westlothiana (Westlothiana lizziae)</a><br><a href='https://cs.wikipedia.org/wiki/Edaphosaurus' target='_blank'>Raný Edaphosaurus (Edaphosaurus)</a><br><a href='https://en.wikipedia.org/wiki/Bandringa' target='_blank'>Žralok Bandringa (Bandringa)</a><br><br>Následující rostliny tvořily rozsáhlé uhelné bažinaté lesy pennsylvanu, jejichž pohřbené zbytky se staly základem většiny světových ložisek uhlí.<br><br><a href='https://cs.wikipedia.org/wiki/Lepidodendron' target='_blank'>Lepidodendron</a><br><a href='https://cs.wikipedia.org/wiki/Plavun%C4%9B' target='_blank'>Plavuně</a><br><a href='https://en.wikipedia.org/wiki/Calamites' target='_blank'>Calamites - obří přeslička</a><br><a href='https://cs.wikipedia.org/wiki/Kordaity' target='_blank'>Kordait (řád Cordaitales)</a><br><a href='https://cs.wikipedia.org/wiki/Kapra%C4%8Fosemenn%C3%A9' target='_blank'>Medullosa (kapradosemenná rostlina)</a><br><a href='https://cs.wikipedia.org/wiki/Maraciovit%C3%A9' target='_blank'>Psaronius - stromová kapradina</a><br><a href='https://en.wikipedia.org/wiki/Neuropteris' target='_blank'>Neuropteris (kapradina)</a><br><a href='https://en.wikipedia.org/wiki/Alethopteris' target='_blank'>Alethopteris</a><br><a href='https://en.wikipedia.org/wiki/Sphenophyllum' target='_blank'>Sphenophyllum</a><br><a href='https://cs.wikipedia.org/wiki/Plavuňovité' target='_blank'>Plavuň (Lycopodium)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="mississippian-species" data-title="Významné druhy spodního karbonu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Agaricocrinus_americanus_Carboniferous_Indiana.jpg/960px-Agaricocrinus_americanus_Carboniferous_Indiana.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují faunu spodního karbonu, období, kdy se teplá mělká moře hemžila bezobratlými a raní čtyřnozí obratlovci začínali kolonizovat souš.<br><br><a href='https://cs.wikipedia.org/wiki/Lilijice' target='_blank'>Lilijice (třída Crinoidea)</a><br><a href='https://en.wikipedia.org/wiki/Blastoid' target='_blank'>Poupěnci (třída Blastoidea)</a><br><a href='https://cs.wikipedia.org/wiki/Ramenonožci' target='_blank'>Ramenonožec (kmen Brachiopoda)</a><br><a href='https://cs.wikipedia.org/wiki/Cladoselache' target='_blank'>Žralok rodu Cladoselache</a><br><a href='https://cs.wikipedia.org/wiki/Čtyřnožci' target='_blank'>Greererpeton - raný čtyřnožec (Greererpeton burkemorani)</a><br><a href='https://cs.wikipedia.org/wiki/Acanthostega' target='_blank'>Acanthostega (Acanthostega gunnari)</a><br><a href='https://cs.wikipedia.org/wiki/Lalokoploutví' target='_blank'>Lalokoploutvá ryba (řád Coelacanthiformes)</a><br><a href='https://cs.wikipedia.org/wiki/Trilobiti' target='_blank'>Trilobit (třída Trilobita)</a><br><a href='https://en.wikipedia.org/wiki/Rugosa' target='_blank'>Čtyřčetný korál (řád Rugosa)</a><br><a href='https://en.wikipedia.org/wiki/Pederpes' target='_blank'>Pederpes (Pederpes finneyae)</a><br><br>Následující rostliny se šířily krajinou spodního karbonu v době, kdy se na souši vytvářely první skutečné lesy.<br><br><a href='https://cs.wikipedia.org/wiki/Archaeopteris' target='_blank'>Archaeopteris - první skutečný strom</a><br><a href='https://cs.wikipedia.org/wiki/Lepidodendron' target='_blank'>Raný Lepidodendron</a><br><a href='https://en.wikipedia.org/wiki/Calamites' target='_blank'>Raný Calamites (obří přeslička)</a><br><a href='https://cs.wikipedia.org/wiki/Kapradiny' target='_blank'>Kapradina (třída Polypodiopsida)</a><br><a href='https://cs.wikipedia.org/wiki/Kapradiny' target='_blank'>Rhacophyton</a><br><a href='https://cs.wikipedia.org/wiki/Plavuňovité' target='_blank'>Plavuň (rod Lycopodium)</a><br><a href='https://cs.wikipedia.org/wiki/Játrovky' target='_blank'>Játrovka (oddělení Marchantiophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Semenné_rostliny' target='_blank'>Rané semenné rostliny (Spermatophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Přesličky' target='_blank'>Přesličkovitá rostlina (třída Sphenopsida)</a><br><a href='https://cs.wikipedia.org/wiki/Mechy' target='_blank'>Mech (oddělení Bryophyta)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="devonian-species" data-title="Významné druhy devonu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Large_and_Small_Dunkleosteus_terrelli.jpg/960px-Large_and_Small_Dunkleosteus_terrelli.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují ikonickou faunu devonu - „věku ryb“ - kdy život poprvé učinil krok z moře na souš.<br><br><a href='https://cs.wikipedia.org/wiki/Dunkleosteus' target='_blank'>Dunkleosteus - obří pancéřnatá ryba (Dunkleosteus terrelli)</a><br><a href='https://cs.wikipedia.org/wiki/Tiktaalik' target='_blank'>Tiktaalik - přechod mezi rybou a suchozemským tvorem (Tiktaalik roseae)</a><br><a href='https://cs.wikipedia.org/wiki/Ichthyostega' target='_blank'>Ichthyostega - raný čtyřnožec (Ichthyostega)</a><br><a href='https://cs.wikipedia.org/wiki/Acanthostega' target='_blank'>Acanthostega (Acanthostega gunnari)</a><br><a href='https://cs.wikipedia.org/wiki/Eusthenopteron' target='_blank'>Eusthenopteron - lalokoploutvá ryba (Eusthenopteron foordi)</a><br><a href='https://en.wikipedia.org/wiki/Bothriolepis' target='_blank'>Bothriolepis - pancéřnatá ryba (Bothriolepis)</a><br><a href='https://cs.wikipedia.org/wiki/Lalokoploutví' target='_blank'>Raná lalokoploutvá ryba (řád Coelacanthiformes)</a><br><a href='https://cs.wikipedia.org/wiki/Trilobiti' target='_blank'>Trilobit (třída Trilobita)</a><br><a href='https://cs.wikipedia.org/wiki/Kyjonožci' target='_blank'>Kyjonožec (řád Eurypteridae)</a><br><a href='https://cs.wikipedia.org/wiki/Amoniti' target='_blank'>Raný amonit (podtřída Ammonoidea)</a><br><br>Následující rostliny proměnily devonskou krajinu, přičemž první skutečné stromy vytvořily nejranější lesy světa.<br><br><a href='https://cs.wikipedia.org/wiki/Archaeopteris' target='_blank'>Archaeopteris - první skutečný strom</a><br><a href='https://en.wikipedia.org/wiki/Wattieza' target='_blank'>Wattieza - raný strom</a><br><a href='https://cs.wikipedia.org/wiki/Cooksonia' target='_blank'>Cooksonia - raná cévnatá rostlina</a><br><a href='https://en.wikipedia.org/wiki/Psilophyton' target='_blank'>Psilophyton</a><br><a href='https://cs.wikipedia.org/wiki/Prototaxites' target='_blank'>Prototaxites - obří pravěká houba</a><br><a href='https://cs.wikipedia.org/wiki/Plavuňovité' target='_blank'>Raná plavuň (rod Lycopodium)</a><br><a href='https://cs.wikipedia.org/wiki/Přeslička' target='_blank'>Raná přeslička (rod Equisetum)</a><br><a href='https://cs.wikipedia.org/wiki/Semenné_rostliny' target='_blank'>Rané semenné rostliny (Spermatophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Kapradiny' target='_blank'>Raná kapradina (třída Polypodiopsida)</a><br><a href='https://cs.wikipedia.org/wiki/Játrovky' target='_blank'>Játrovka (oddělení Marchantiophyta)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="silurian-species" data-title="Významné druhy siluru" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/f/f8/Pterygotus_anglicus.JPG' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují faunu siluru - období, kdy se poprvé objevily čelistnaté ryby a první živočichové se trvale odvážili na souš.<br><br><a href='https://cs.wikipedia.org/wiki/Pterygotus' target='_blank'>Pterygotus - obří kyjonožec (Pterygotus anglicus)</a><br><a href='https://cs.wikipedia.org/wiki/Cephalaspis' target='_blank'>Cephalaspis - bezčelistnatá ryba (Cephalaspis)</a><br><a href='https://en.wikipedia.org/wiki/Climatius' target='_blank'>Climatius - raná čelistnatá ryba (Climatius reticulatus)</a><br><a href='https://cs.wikipedia.org/wiki/Trilobiti' target='_blank'>Trilobit (třída Trilobita)</a><br><a href='https://cs.wikipedia.org/wiki/Ramenonožci' target='_blank'>Ramenonožec (kmen Brachiopoda)</a><br><a href='https://cs.wikipedia.org/wiki/Lilijice' target='_blank'>Lilijice (třída Crinoidea)</a><br><a href='https://en.wikipedia.org/wiki/Orthoceras' target='_blank'>Orthoceras - nautiloid (Orthoceras)</a><br><a href='https://en.wikipedia.org/wiki/Rugosa' target='_blank'>Čtyřčetný korál (řád Rugosa)</a><br><a href='https://cs.wikipedia.org/wiki/Štíři' target='_blank'>Raný suchozemský štír (řád Scorpiones)</a><br><a href='https://cs.wikipedia.org/wiki/Mnohonožky' target='_blank'>Raná mnohonožka (třída Diplopoda)</a><br><br>Následující rostliny představují nejranější kolonizátory souše - světa, kterému stále dominovaly mořské řasy.<br><br><a href='https://cs.wikipedia.org/wiki/Cooksonia' target='_blank'>Cooksonia - první cévnatá rostlina (Cooksonia)</a><br><a href='https://en.wikipedia.org/wiki/Baragwanathia' target='_blank'>Baragwanathia - raná plavuň (Baragwanathia)</a><br><a href='https://cs.wikipedia.org/wiki/Rhyniophyta' target='_blank'>Rhyniofyt (oddělení Rhyniophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Játrovky' target='_blank'>Játrovka (oddělení Marchantiophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Mechy' target='_blank'>Mech (oddělení Bryophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Zelené_řasy' target='_blank'>Zelená řasa (oddělení Chlorophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Ruduchy' target='_blank'>Ruducha (oddělení Rhodophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Chaluhy' target='_blank'>Hnědá řasa (třída Phaeophyceae)</a><br><a href='https://cs.wikipedia.org/wiki/Parožnatky' target='_blank'>Parožnatka (oddělení Charophyta)</a><br><a href='https://en.wikipedia.org/wiki/Nematophyta' target='_blank'>Nematofyt (Nematophytes)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="ordovician-species" data-title="Významné formy života v ordoviku" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Isotelus_gigas_fossil_trilobite_%28Ordovician%3B_Walcott-Rust_site%2C_New_York_State%2C_USA%29_%2816763508314%29.jpg/960px-Isotelus_gigas_fossil_trilobite_%28Ordovician%3B_Walcott-Rust_site%2C_New_York_State%2C_USA%29_%2816763508314%29.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují mimořádně rozmanitou mořskou faunu ordoviku. Souš v této době nebyla osídlena živočichy.<br><br><a href='https://en.wikipedia.org/wiki/Isotelus' target='_blank'>Isotelus - obří trilobit (Isotelus rex)</a><br><a href='https://cs.wikipedia.org/wiki/Trilobiti' target='_blank'>Trilobit (třída Trilobita)</a><br><a href='https://en.wikipedia.org/wiki/Orthoceras' target='_blank'>Orthoceras - loděnkovitý hlavonožec</a><br><a href='https://cs.wikipedia.org/wiki/Ramenonožci' target='_blank'>Ramenonožec (kmen Brachiopoda)</a><br><a href='https://cs.wikipedia.org/wiki/Graptoliti' target='_blank'>Graptolit (Graptolithina)</a><br><a href='https://cs.wikipedia.org/wiki/Lilijice' target='_blank'>Lilijice (třída Crinoidea)</a><br><a href='https://cs.wikipedia.org/wiki/Lasturnatky' target='_blank'>Ostrakod (třída Ostracoda)</a><br><a href='https://cs.wikipedia.org/wiki/Konodonti' target='_blank'>Konodont (třída Conodonta)</a><br><a href='https://cs.wikipedia.org/wiki/Arandaspis' target='_blank'>Arandaspis - raná bezčelistnatá ryba</a><br><a href='https://cs.wikipedia.org/wiki/Kyjonožci' target='_blank'>Raný kyjonožec (řád Eurypteridae)</a><br><br>Následující organismy představují primární fotosyntetické formy života v ordoviku. Skutečné suchozemské rostliny se teprve začínaly objevovat.<br><br><a href='https://cs.wikipedia.org/wiki/Zelené_řasy' target='_blank'>Zelené řasy (oddělení Chlorophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Ruduchy' target='_blank'>Ruduchy (oddělení Rhodophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Chaluhy' target='_blank'>Hnědé řasy (třída Phaeophyceae)</a><br><a href='https://cs.wikipedia.org/wiki/Sinice' target='_blank'>Sinice (Cyanobacteria)</a><br><a href='https://cs.wikipedia.org/wiki/Parožnatky' target='_blank'>Parožnatky (oddělení Charophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Játrovky' target='_blank'>Raná játrovka (oddělení Marchantiophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Mechy' target='_blank'>Raný mech (oddělení Bryophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Obrněnky' target='_blank'>Obrněnka (oddělení Dinoflagellata)</a><br><a href='https://cs.wikipedia.org/wiki/Acritarcha' target='_blank'>Akritarchy - mořské mikrofosilie</a><br><a href='https://en.wikipedia.org/wiki/Coralline_algae' target='_blank'>Korálové řasy (řád Corallinales)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+            <div class="hotspot" id="cambrian-species" data-title="Významné formy života v kambriu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Anomalocaris_eye.jpg/960px-Anomalocaris_eye.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují mimořádnou rozmanitost kambrijské exploze, kdy se ve fosilním záznamu poprvé objevila většina hlavních tělesných plánů živočichů.<br><br><a href='https://cs.wikipedia.org/wiki/Anomalocaris' target='_blank'>Anomalocaris - vrcholový predátor (Anomalocaris canadensis)</a><br><a href='https://cs.wikipedia.org/wiki/Trilobiti' target='_blank'>Trilobit (třída Trilobita)</a><br><a href='https://cs.wikipedia.org/wiki/Hallucigenia' target='_blank'>Hallucigenia (Hallucigenia sparsa)</a><br><a href='https://cs.wikipedia.org/wiki/Opabinia' target='_blank'>Opabinia (Opabinia regalis)</a><br><a href='https://cs.wikipedia.org/wiki/Pikaia' target='_blank'>Pikaia - raný strunatec (Pikaia gracilens)</a><br><a href='https://cs.wikipedia.org/wiki/Wiwaxia' target='_blank'>Wiwaxia (Wiwaxia corrugata)</a><br><a href='https://en.wikipedia.org/wiki/Marrella' target='_blank'>Marrella (Marrella splendens)</a><br><a href='https://en.wikipedia.org/wiki/Ottoia' target='_blank'>Ottoia - hlavatý červ (Ottoia prolifica)</a><br><a href='https://cs.wikipedia.org/wiki/Ramenonožci' target='_blank'>Ramenonožec (kmen Brachiopoda)</a><br><a href='https://en.wikipedia.org/wiki/Aysheaia' target='_blank'>Aysheaia (Aysheaia pedunculata)</a><br><br>Následující organismy představují primární fotosyntetický život v kambriu. Suchozemské rostliny neexistovaly - souš byla pustá.<br><br><a href='https://cs.wikipedia.org/wiki/Sinice' target='_blank'>Sinice (Cyanobacteria)</a><br><a href='https://cs.wikipedia.org/wiki/Zelené_řasy' target='_blank'>Zelené řasy (oddělení Chlorophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Ruduchy' target='_blank'>Ruduchy (oddělení Rhodophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Chaluhy' target='_blank'>Hnědé řasy (třída Phaeophyceae)</a><br><a href='https://cs.wikipedia.org/wiki/Parožnatky' target='_blank'>Parožnatky (oddělení Charophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Acritarcha' target='_blank'>Akritarchy - mořské mikrofosilie</a><br><a href='https://cs.wikipedia.org/wiki/Obrněnky' target='_blank'>Obrněnka (oddělení Dinoflagellata)</a><br><a href='https://cs.wikipedia.org/wiki/Stromatolit' target='_blank'>Stromatolit - mikrobiální rohož</a><br><a href='https://cs.wikipedia.org/wiki/Rozsivky' target='_blank'>Raná rozsivka (oddělení Bacillariophyta)</a><br><a href='https://cs.wikipedia.org/wiki/Archaeplastida' target='_blank'>Archaeplastida</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+
+
+
+        </div>
+    </div>
+
+    <div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:9998;"></div>
+    <div class="tooltip" id="info-bubble">
+        <div class="tooltip-content">
+            <h3 id="bubble-title">Title</h3>
+            <p id="bubble-desc">Description goes here.</p>
+        </div>
+        <div class="tooltip-footer">
+            <button id="close-btn">Zavřít</button>
+        </div>
+    </div>
+
+    <!-- BOOKMARK: Script  -->
+    <script>
+        window.addEventListener('load', function () {
+            const hotspots = document.querySelectorAll('.hotspot');
+            hotspots.forEach(spot => {
+                const desc = spot.getAttribute('data-desc');
+                const match = desc.match(/src=['"]([^'"]+)['"]/);
+                if (match && match[1]) {
+                    const preloadImg = new Image();
+                    preloadImg.src = match[1];
+                }
+            });
+        });
+
+        const hotspots = document.querySelectorAll('.hotspot');
+        const bubble = document.getElementById('info-bubble');
+        const bubbleTitle = document.getElementById('bubble-title');
+        const bubbleDesc = document.getElementById('bubble-desc');
+        const closeBtn = document.getElementById('close-btn');
+
+        function preventBodyTouch(e) {
+            if (!bubble.contains(e.target)) {
+                e.preventDefault();
+            }
+        }
+
+        function openBubble() {
+            document.getElementById('overlay').style.display = 'block';
+            bubble.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            document.addEventListener('touchmove', preventBodyTouch, { passive: false });
+            adjustBubbleForZoom();
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', adjustBubbleForZoom);
+            }
+        }
+
+        function closeBubble() {
+            bubble.style.display = 'none';
+            bubble.style.transform = 'translate(-50%, -50%)';
+            document.getElementById('overlay').style.display = 'none';
+            document.body.style.overflow = '';
+            document.removeEventListener('touchmove', preventBodyTouch);
+            if (window.visualViewport) {
+                window.visualViewport.removeEventListener('resize', adjustBubbleForZoom);
+            }
+        }
+
+        function adjustScrollPadding() {
+            const header = document.getElementById('fixed-header');
+            const wrapper = document.getElementById('scroll-wrapper');
+            if (header && wrapper) {
+                wrapper.style.paddingTop = header.offsetHeight + 'px';
+            }
+        }
+
+        window.addEventListener('load', adjustScrollPadding);
+        window.addEventListener('resize', adjustScrollPadding);
+
+        hotspots.forEach(spot => {
+            spot.addEventListener('click', (e) => {
+                e.stopPropagation();
+                bubbleTitle.textContent = spot.getAttribute('data-title');
+                bubbleDesc.innerHTML = spot.getAttribute('data-desc');
+                openBubble();
+            });
+        });
+
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeBubble();
+        });
+
+        document.addEventListener('click', (e) => {
+            const isClickInsideBubble = bubble.contains(e.target);
+            const isClickOnHotspot = Array.from(hotspots).some(spot => spot.contains(e.target));
+            if (!isClickInsideBubble && !isClickOnHotspot) {
+                closeBubble();
+            }
+        });
+
+        window.addEventListener('load', function () {
+            const container = document.querySelector('.image-container');
+            if (container && window.innerWidth < 600) {
+                const scrollTarget = (container.scrollWidth - window.innerWidth) / 2;
+                window.scrollTo({ left: scrollTarget, top: 0, behavior: 'instant' });
+            }
+        });
+
+
+
+    </script>
+
+</body>
+
+</html>
