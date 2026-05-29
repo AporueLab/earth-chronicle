@@ -161,16 +161,11 @@
         @media (max-width: 600px) {
             body {
                 align-items: flex-start;
-                min-width: 200vw;
             }
 
             #fixed-header {
-                position: absolute;
-                top: 0;
-                left: 0;
+                position: fixed;
                 width: 100vw;
-                text-align: center;
-                z-index: 1000;
             }
 
             #scroll-wrapper {
@@ -193,16 +188,14 @@
 
             .main-title {
                 font-size: 1.1rem;
-                text-align: center;
-                width: 100%;
-                box-sizing: border-box;
+                position: sticky;
+                width: 100vw;
             }
 
             .main-subtitle {
                 font-size: 0.65rem;
+                width: 100vw;
                 text-align: center;
-                width: 100%;
-                box-sizing: border-box;
             }
 
             .tooltip {
@@ -757,28 +750,13 @@
             }
         });
 
-        if (window.innerWidth < 600) {
-            const header = document.getElementById('fixed-header');
-            header.style.width = window.innerWidth + 'px';
-
-            function pinHeader() {
-                header.style.left = window.scrollX + 'px';
-                header.style.top = window.scrollY + 'px';
+        window.addEventListener('load', function () {
+            const container = document.querySelector('.image-container');
+            if (container && window.innerWidth < 600) {
+                const scrollTarget = (container.scrollWidth - window.innerWidth) / 2;
+                window.scrollTo({ left: scrollTarget, top: 0, behavior: 'instant' });
             }
-
-            pinHeader();
-            window.addEventListener('scroll', pinHeader, { passive: true });
-
-            window.addEventListener('load', function () {
-                header.style.width = window.innerWidth + 'px';
-                pinHeader();
-                setTimeout(function () {
-                    const scrollTarget = (document.body.scrollWidth - window.innerWidth) / 2;
-                    window.scrollTo({ left: scrollTarget, top: 0, behavior: 'instant' });
-                    pinHeader();
-                }, 100);
-            });
-        }
+        });
 
 
 
