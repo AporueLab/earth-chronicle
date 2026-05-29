@@ -759,19 +759,23 @@
 
         if (window.innerWidth < 600) {
             const header = document.getElementById('fixed-header');
+            header.style.width = window.innerWidth + 'px';
 
             function pinHeader() {
                 header.style.left = window.scrollX + 'px';
                 header.style.top = window.scrollY + 'px';
             }
 
+            pinHeader();
             window.addEventListener('scroll', pinHeader, { passive: true });
-            window.addEventListener('load', pinHeader);
 
             window.addEventListener('load', function () {
+                header.style.width = window.innerWidth + 'px';
+                pinHeader();
                 setTimeout(function () {
                     const scrollTarget = (document.body.scrollWidth - window.innerWidth) / 2;
                     window.scrollTo({ left: scrollTarget, top: 0, behavior: 'instant' });
+                    pinHeader();
                 }, 100);
             });
         }
