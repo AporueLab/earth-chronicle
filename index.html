@@ -161,17 +161,24 @@
         @media (max-width: 600px) {
             body {
                 align-items: flex-start;
+                overflow-x: hidden;
             }
 
             #fixed-header {
                 position: fixed;
+                top: 0;
                 left: 0;
-                right: 0;
-                width: auto;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                text-align: center;
+                z-index: 1000;
             }
 
             #scroll-wrapper {
                 width: 200vw;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
             }
 
             .image-container {
@@ -191,11 +198,15 @@
             .main-title {
                 font-size: 1.1rem;
                 text-align: center;
+                width: 100%;
+                box-sizing: border-box;
             }
 
             .main-subtitle {
                 font-size: 0.65rem;
                 text-align: center;
+                width: 100%;
+                box-sizing: border-box;
             }
 
             .tooltip {
@@ -752,8 +763,8 @@
 
         window.addEventListener('load', function () {
             if (window.innerWidth < 600) {
-                const docWidth = document.documentElement.scrollWidth;
-                window.scrollTo({ left: (docWidth - window.innerWidth) / 2, top: 0, behavior: 'instant' });
+                const wrapper = document.getElementById('scroll-wrapper');
+                wrapper.scrollLeft = (wrapper.scrollWidth - wrapper.clientWidth) / 2;
             }
         });
 
