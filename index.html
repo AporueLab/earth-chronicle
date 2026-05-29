@@ -165,7 +165,9 @@
 
             #fixed-header {
                 position: fixed;
-                width: 100vw;
+                left: 0;
+                right: 0;
+                width: auto;
             }
 
             #scroll-wrapper {
@@ -188,9 +190,6 @@
 
             .main-title {
                 font-size: 1.1rem;
-                position: sticky;
-                left: 0;
-                width: 100vw;
                 text-align: center;
             }
 
@@ -752,10 +751,9 @@
         });
 
         window.addEventListener('load', function () {
-            const container = document.querySelector('.image-container');
-            if (container && window.innerWidth < 600) {
-                const scrollTarget = (container.scrollWidth - window.innerWidth) / 2;
-                window.scrollTo({ left: scrollTarget, top: 0, behavior: 'instant' });
+            if (window.innerWidth < 600) {
+                const docWidth = document.documentElement.scrollWidth;
+                window.scrollTo({ left: (docWidth - window.innerWidth) / 2, top: 0, behavior: 'instant' });
             }
         });
 
