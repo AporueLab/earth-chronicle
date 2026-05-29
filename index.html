@@ -764,7 +764,12 @@
         window.addEventListener('load', function () {
             if (window.innerWidth < 600) {
                 const wrapper = document.getElementById('scroll-wrapper');
+                const header = document.getElementById('fixed-header');
                 wrapper.scrollLeft = (wrapper.scrollWidth - wrapper.clientWidth) / 2;
+                header.style.left = wrapper.scrollLeft + 'px';
+                wrapper.addEventListener('scroll', function () {
+                    header.style.left = wrapper.scrollLeft + 'px';
+                });
             }
         });
 
