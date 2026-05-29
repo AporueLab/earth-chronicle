@@ -160,42 +160,67 @@
 
         @media (max-width: 600px) {
             body {
-                align-items: flex-start;
+                /* Remove flexbox for mobile to prevent flex-start issue */
+                display: block;
+                align-items: unset;
+                overflow-x: hidden;
             }
 
             #fixed-header {
                 position: fixed;
+                top: 0;
+                left: 0;
                 width: 100vw;
+                z-index: 1000;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background-color: rgba(0, 0, 0, 0.9);
+            }
+
+            .main-title,
+            .main-subtitle {
+                width: 100vw;
+                margin: 0;
+                text-align: center;
+                left: 0;
+                right: 0;
+            }
+
+            .main-title {
+                font-size: 1.1rem;
+                /* Remove position: sticky if present */
+            }
+
+            .main-subtitle {
+                font-size: 0.65rem;
             }
 
             #scroll-wrapper {
                 width: 200vw;
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
+                margin: 0 auto;
+                display: block;
+                position: relative;
+                padding-top: 0 !important;
+                /* Padding handled by JS */
             }
 
             .image-container {
-                display: inline-block;
-                position: relative;
-                margin: 0;
                 width: 200vw;
+                display: block;
+                position: relative;
+                margin: 0 auto;
             }
 
             .image-container img {
                 width: 200vw;
                 max-width: none;
-                margin: 0;
+                margin: 0 auto;
                 display: block;
-            }
-
-            .main-title {
-                font-size: 1.1rem;
-                position: sticky;
-                width: 100vw;
-            }
-
-            .main-subtitle {
-                font-size: 0.65rem;
-                width: 100vw;
-                text-align: center;
             }
 
             .tooltip {
@@ -755,6 +780,14 @@
             if (container && window.innerWidth < 600) {
                 const scrollTarget = (container.scrollWidth - window.innerWidth) / 2;
                 window.scrollTo({ left: scrollTarget, top: 0, behavior: 'instant' });
+            }
+        });
+
+        window.addEventListener('load', function () {
+            const wrapper = document.getElementById('scroll-wrapper');
+            if (wrapper && window.innerWidth < 600) {
+                const scrollTarget = (wrapper.scrollWidth - wrapper.clientWidth) / 2;
+                wrapper.scrollLeft = scrollTarget;
             }
         });
 
