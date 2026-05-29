@@ -160,74 +160,49 @@
 
         @media (max-width: 600px) {
             body {
-                display: block !important;
-                align-items: unset !important;
-                overflow-x: hidden;
+                align-items: flex-start;
             }
 
             #fixed-header {
                 position: fixed;
-                top: 0;
-                left: 0;
                 width: 100vw;
-                z-index: 1000;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                background: rgba(0, 0, 0, 0.9);
             }
 
-            .main-title,
-            .main-subtitle {
-                width: 100vw;
+            #scroll-wrapper {
+                width: 200vw;
+            }
+
+            .image-container {
+                display: inline-block;
+                position: relative;
                 margin: 0;
-                text-align: center;
-                left: 0;
-                right: 0;
+                width: 200vw;
+            }
+
+            .image-container img {
+                width: 200vw;
+                max-width: none;
+                margin: 0;
+                display: block;
             }
 
             .main-title {
                 font-size: 1.1rem;
-                font-weight: 700;
+                position: sticky;
+                width: 100vw;
             }
 
             .main-subtitle {
                 font-size: 0.65rem;
+                width: 100vw;
+                text-align: center;
             }
-        }
 
-        #scroll-wrapper {
-            width: 200vw;
-            overflow-x: auto;
-            overflow-y: hidden;
-            -webkit-overflow-scrolling: touch;
-            margin: 0 auto;
-            display: block;
-            position: relative;
-            padding-top: 0 !important;
-            /* Padding handled by JS */
-        }
-
-        .image-container {
-            width: 200vw;
-            display: block;
-            position: relative;
-            margin: 0 auto;
-        }
-
-        .image-container img {
-            width: 200vw;
-            max-width: none;
-            margin: 0 auto;
-            display: block;
-        }
-
-        .tooltip {
-            top: 51%;
-            max-height: 69dvh;
-            max-height: 69vh;
-        }
+            .tooltip {
+                top: 51%;
+                max-height: 69dvh;
+                max-height: 69vh;
+            }
         }
 
         /* BOOKMARK: Hotspots */
@@ -782,26 +757,6 @@
                 window.scrollTo({ left: scrollTarget, top: 0, behavior: 'instant' });
             }
         });
-
-        window.addEventListener('load', function () {
-            const wrapper = document.getElementById('scroll-wrapper');
-            if (wrapper && window.innerWidth < 600) {
-                const scrollTarget = (wrapper.scrollWidth - wrapper.clientWidth) / 2;
-                wrapper.scrollLeft = scrollTarget;
-            }
-        });
-
-        window.addEventListener('load', function () {
-            // Use setTimeout in case layout shifts after load
-            setTimeout(function () {
-                const wrapper = document.getElementById('scroll-wrapper');
-                if (wrapper && window.innerWidth < 600) {
-                    const scrollTarget = (wrapper.scrollWidth - wrapper.clientWidth) / 2;
-                    wrapper.scrollLeft = scrollTarget;
-                }
-            }, 50);
-        });
-    </script>
 
 
 
