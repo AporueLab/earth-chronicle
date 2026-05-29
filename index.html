@@ -7,6 +7,10 @@
     <title>The Earth Chronicle</title>
     <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/u/0/d/16K3RSBeGxFXvFkrUNErTb1pJ21X8H32H">
     <style>
+        html {
+            overflow-x: hidden;
+        }
+
         body {
             background-color: #000;
             margin: 0;
@@ -15,7 +19,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow-x: auto;
+            overflow-x: visible;
         }
 
         .main-title {
@@ -161,11 +165,13 @@
         @media (max-width: 600px) {
             html {
                 overflow-x: auto;
+                overflow-y: auto;
             }
 
             body {
                 align-items: flex-start;
                 overflow-x: visible;
+                overflow-y: visible;
                 min-width: 200vw;
             }
 
@@ -764,8 +770,14 @@
 
         window.addEventListener('load', function () {
             if (window.innerWidth < 600) {
-                const scrollTarget = (document.body.scrollWidth - window.innerWidth) / 2;
-                window.scrollTo({ left: scrollTarget, top: 0, behavior: 'instant' });
+                requestAnimationFrame(function () {
+                    setTimeout(function () {
+                        const totalWidth = document.documentElement.scrollWidth;
+                        const viewWidth = window.innerWidth;
+                        const scrollTarget = (totalWidth - viewWidth) / 2;
+                        document.documentElement.scrollLeft = scrollTarget;
+                    }, 50);
+                });
             }
         });
 
