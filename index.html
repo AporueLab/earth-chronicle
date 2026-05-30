@@ -176,14 +176,12 @@
             
             .main-title {
                 font-size: 1.1rem;
-                position: sticky;
                 text-align: center;
                 width: 100vw;
             }
             
             .main-subtitle {
                 font-size: 0.65rem;
-                position: sticky;
                 width: 100vw;
                 text-align: center;
             }
@@ -758,8 +756,10 @@
         window.addEventListener('load', function () {
             const container = document.querySelector('.image-container');
             if (container && window.innerWidth < 600) {
-                const scrollTarget = (container.scrollWidth - window.innerWidth) / 2;
-                window.scrollTo({ left: scrollTarget, top: 0, behavior: 'instant' });
+				setTimeout(() => {
+					const scrollTarget = (container.scrollWidth - window.innerWidth) / 2;
+					window.scrollTo({ left: scrollTarget, top: 0, behavior: 'instant' });
+				}, 100);
             }
         });
 
