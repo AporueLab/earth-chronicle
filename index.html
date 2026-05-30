@@ -164,15 +164,11 @@
             }
 
             #fixed-header {
-                position: fixed;
-				top: 0;
-				left: 0;
+                position: absolute;
                 width: 100vw;
 				background-color: rgba(0, 0, 0, 0.9);
 				z-index: 1000;
 				text-align: center;
-				transform: translateZ(0);
-				will-change: transform;
             }
             
             #scroll-wrapper {
@@ -778,6 +774,24 @@
                 closeBubble();
             }
         });
+		
+		function positionHeader() {
+			if (window.innerWidth < 600 && window.visualViewport) {
+				const vv = window.visualViewport;
+				const header = document.getElementById('fixed-header');
+				header.style.position = 'fixed';
+				header.style.top = vv.offsetTop + 'px';
+				header.style.left = vv.offsetLeft + 'px';
+				header.style.width = vv.width + 'px';
+			}
+		}
+		
+		positionHeader();
+		
+		if (window.visualViewport) {
+			window.visualViewport.addEventListener('scroll', positionHeader);
+			window.visualViewport.addEventListener('resize', positionHeader);
+		}
 
         function centerScrollOnMobile() {
             if (window.innerWidth < 600) {
