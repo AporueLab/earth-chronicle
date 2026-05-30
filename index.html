@@ -749,9 +749,8 @@
 
         function adjustScrollPadding() {
             const header = document.getElementById('fixed-header');
-            const wrapper = document.getElementById('scroll-wrapper');
-            if (header && wrapper) {
-                wrapper.style.paddingTop = header.offsetHeight + 'px';
+            if (header) {
+                document.getElementById('scroll-wrapper').style.marginTop = header.offsetHeight + 'px';
             }
         }
 
@@ -782,17 +781,13 @@
 
         function centerScrollOnMobile() {
             if (window.innerWidth < 600) {
-				const wrapper = document.getElementById('scroll-wrapper');
-				const target = (wrapper.scrollWidth - window.innerWidth) / 2;
-				window.scrollTo({ left: target, top: 0, behavior: 'instant' });
+				window.scrollTo({ left: window.innerWidth / 2, top: 0, behavior: 'instant' });
             }
 			
 		}
 		
 		window.addEventListener('load', () => setTimeout(centerScrollOnMobile, 150));
 		document.querySelector('.image-container img').addEventListener('load', centerScrollOnMobile);
-		
-        });
 
 
 
