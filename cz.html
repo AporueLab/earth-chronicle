@@ -159,17 +159,41 @@
         }
 
         @media (max-width: 600px) {
+
+            html,
             body {
+                overflow-x: scroll;
+                scroll-snap-type: none;
                 align-items: flex-start;
             }
 
             #fixed-header {
                 position: fixed;
+                top: 0;
+                left: 0;
                 width: 100vw;
+                background-color: rgba(0, 0, 0, 0.9);
+                z-index: 1000;
+                text-align: center;
             }
 
             #scroll-wrapper {
                 width: 200vw;
+                margin-left: 0;
+
+
+            }
+
+            .main-title {
+                font-size: 1.1rem;
+                text-align: center;
+                width: 100vw;
+            }
+
+            .main-subtitle {
+                font-size: 0.65rem;
+                width: 100vw;
+                text-align: center;
             }
 
             .image-container {
@@ -184,24 +208,13 @@
                 max-width: none;
                 margin: 0;
                 display: block;
-            }
 
-            .main-title {
-                font-size: 1.1rem;
-                position: sticky;
-                width: 100vw;
-            }
-
-            .main-subtitle {
-                font-size: 0.65rem;
-                width: 100vw;
-                text-align: center;
             }
 
             .tooltip {
-                top: 51%;
-                max-height: 69dvh;
-                max-height: 69vh;
+                top: 32%;
+                max-height: 85dvh;
+                max-height: 85vh;
             }
         }
 
@@ -552,12 +565,13 @@
 </head>
 
 <body>
-    <div id="fixed-header">
-        <h1 class="main-title">Kronika Země</h1>
-        <p class="main-subtitle">Interaktivní geologická časová osa<br><br>Prozkoumejte kliknutím
-    </div>
 
     <!-- BOOKMARK: Text  -->
+    <div id="fixed-header">
+        <h1 class="main-title">Kronika Země</h1>
+        <p class="main-subtitle">Interaktivní geologická časová osa<br><br>Klepněte pro prozkoumání</p>
+    </div>
+    <div id="header-spacer"></div>
     <div id="scroll-wrapper">
         <div class="image-container">
             <img src="https://lh3.googleusercontent.com/u/0/d/1ASNSV0cGu1v9WVzPv_-Bo7lvEnJD7KXh" alt="Geologic Time Scale">
@@ -610,7 +624,7 @@
 
             <div class="hotspot" id="archean" data-title="Archaikum" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/10Tr6IjnPuPfVmJltaAyPSsBz7LGb4eGb' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 4 až 2,5 miliardami let.<br><br><b>Život:</b> Život existoval, ale výhradně ve formě jednobuněčných prokaryot - bakterií a archeí. Stromatolity, vrstevnaté biogenní útvary tvořené fotosyntetizujícími sinicemi, patří mezi nejstarší fosilní důkazy života a začaly do atmosféry pomalu uvolňovat kyslík.<br><br><b>Geologie:</b> Vznikly první stabilní kontinentální kratony - prastará jádra hornin, která dodnes tvoří středy moderních kontinentů. Zemská kůra byla tenčí a mobilnější než dnes, s intenzivní sopečnou činností. Neexistovala žádná velká pohoří; povrchu dominovala mělká moře a sopečné ostrovy.<br><br><b>Klima:</b> Atmosféra se skládala převážně z dusíku a CO₂, bez volného kyslíku. I přesto, že Slunce zářilo přibližně o 30 % méně než dnes, vysoké koncentrace skleníkových plynů udržely vodu na povrchu v kapalném stavu. Teploty byly pravděpodobně vyšší než dnešní průměry a většinu povrchu pokrýval globální oceán.<br><br><a href='https://cs.wikipedia.org/wiki/Archaikum' target='_blank'>Wikipedia</a>"></div>
 
-            <div class="hotspot" id="earth-formation" data-title="Raná Země" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1QwV8g5J4RS84qRaxBKAK6efyeRfyWKpr' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 4,54 miliardami let - eon hadaikum (před 4,54 až 4 miliardami let).<br><br><b>Život:</b> Žádný. Povrch byl zcela nehostinný - tavenina nebo prostředí pod intenzivním bombardováním, kde po většinu období neexistovala stabilní kapalná voda. Některé geochemické nálezy naznačují, že mikrobiální život se mohl objevit ke konci hadaikum, ale neexistují žádné potvrzené fosilie.<br><br><b>Geologie:</b> Země vznikla z prachoplynové mlhoviny postupným nabalováním hmoty při kolizích planetesimál. Do proto-Země narazilo těleso o velikosti Marsu a vyvržený materiál vytvořil Měsíc. Povrch byl převážně roztavený. Nejstarší známé minerály - krystaly zirkonu z Austrálie - pocházejí z doby před 4,4 miliardami let, což naznačuje, že kapalná voda existovala překvapivě brzy.<br><br><b>Klima:</b> Intenzivní teplo z narůstání hmoty, radioaktivního rozpadu a častých dopadů meteoritů udržovalo povrch v roztaveném či polotekutém stavu. Planetu obklopovala hustá atmosféra z vodní páry a CO₂. Jak Země postupně chladla, pára kondenzovala a vytvořila první oceány - základ pro vše, co následovalo.<br><br><a href='https://cs.wikipedia.org/wiki/Hadaikum' target='_blank'>Wikipedia</a>"></div>
+            <div class="hotspot" id="earth-formation" data-title="Raná Země" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1QwV8g5J4RS84qRaxBKAK6efyeRfyWKpr' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><b>Období:</b> Před 4,54 miliardami let - eon hadaikum (před 4,54 až 4 miliardami let).<br><br><b>Život:</b> Žádný. Povrch byl zcela nehostinný - tavenina nebo prostředí pod intenzivním bombardováním, kde po většinu období neexistovala stabilní kapalná voda. Některé geochemické nálezy naznačují, že mikrobiální život se mohl objevit ke konci eonu hadaikum, ale neexistují žádné potvrzené fosilie.<br><br><b>Geologie:</b> Země vznikla z prachoplynové mlhoviny postupným nabalováním hmoty při kolizích planetesimál. Do proto-Země narazilo těleso o velikosti Marsu a vyvržený materiál vytvořil Měsíc. Povrch byl převážně roztavený. Nejstarší známé minerály - krystaly zirkonu z Austrálie - pocházejí z doby před 4,4 miliardami let, což naznačuje, že kapalná voda existovala překvapivě brzy.<br><br><b>Klima:</b> Intenzivní teplo z narůstání hmoty, radioaktivního rozpadu a častých dopadů meteoritů udržovalo povrch v roztaveném či polotekutém stavu. Planetu obklopovala hustá atmosféra z vodní páry a CO₂. Jak Země postupně chladla, pára kondenzovala a vytvořila první oceány - základ pro vše, co následovalo.<br><br><a href='https://cs.wikipedia.org/wiki/Hadaikum' target='_blank'>Wikipedia</a>"></div>
 
             <div class="hotspot" id="pteranodon" data-title="Pteranodon" data-desc="Velký bezocasý ptakoještěr z období křídy, který se vyznačoval dlouhým bezzubým zobákem a výrazným kostěným výrůstkem na hlavě.<br><br><a href='https://cs.wikipedia.org/wiki/Pteranodon' target='_blank' >Wikipedia</a>"></div>
 
@@ -620,11 +634,11 @@
 
             <div class="hotspot" id="thanks" data-title="O projektu" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/15tA-jNLkgXiow4OTe9aKOVwlp3zrLUxi' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Kronika Země slouží jako interaktivní vzdělávací průvodce geologickým časem.<br>Projekt vyvinul v dubnu 2026 Josef Handsuch s využitím nástrojů VSCodium, Photoshop a Wikipedia, společně s asistencí umělé inteligence Gemini a Claude. Tato aplikace představuje osobní závazek ke vzdělávání v oblasti věd o Zemi."></div>
 
-            <div class="hotspot" id="language" data-title="English version" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1DxNidozMuQLh0gnFaa2l_0GfoSt0e7jt' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><a href='https://sites.google.com/view/theearthchronicle'>SWITCH</a>"></div>
+            <div class="hotspot" id="language" data-title="English version" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1DxNidozMuQLh0gnFaa2l_0GfoSt0e7jt' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br><a href='index.html'>SWITCH</a>"></div>
 
-            <div class="hotspot" id="holocene-species" data-title="Významné druhy ve volné přírodě holocénu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Mexican_Wolf_2_yfb-edit_1.jpg/960px-Mexican_Wolf_2_yfb-edit_1.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují jedny z nejrozšířenějších a ekologicky nejvýznamnějších divokých druhů současnosti.<br><br><a href='https://cs.wikipedia.org/wiki/Ryb%C3%A1k_dlouhoocas%C3%BD' target='_blank'>Rybák dlouhoocasý (Sterna paradisaea)</a><br><a href='https://cs.wikipedia.org/wiki/Slon_africk%C3%BD' target='_blank'>Slon africký (Loxodonta africana)</a><br><a href='https://cs.wikipedia.org/wiki/Plejtv%C3%A1k_obrovsk%C3%BD' target='_blank'>Plejtvák obrovský (Balaenoptera musculus)</a><br><a href='https://cs.wikipedia.org/wiki/Monarcha_st%C4%9Bhovav%C3%BD' target='_blank'>Monarcha stěhovavý (Danaus plexippus)</a><br><a href='https://cs.wikipedia.org/wiki/Krokod%C3%BDl_nilsk%C3%BD' target='_blank'>Krokodýl nilský (Crocodylus niloticus)</a><br><a href='https://cs.wikipedia.org/wiki/Sokol_st%C4%9Bhovav%C3%BD' target='_blank'>Sokol stěhovavý (Falco peregrinus)</a><br><a href='https://cs.wikipedia.org/wiki/Medv%C4%9Bd_ledn%C3%AD' target='_blank'>Medvěd lední (Ursus maritimus)</a><br><a href='https://cs.wikipedia.org/wiki/Krokod%C3%BDl_mo%C5%99sk%C3%BD' target='_blank'>Krokodýl mořský (Crocodylus porosus)</a><br><a href='https://cs.wikipedia.org/wiki/Albatros_st%C4%9Bhovav%C3%BD' target='_blank'>Albatros stěhovavý (Diomedea exulans)</a><br><a href='https://cs.wikipedia.org/wiki/Vlk_obecn%C3%BD' target='_blank'>Vlk obecný (Canis lupus)</a><br><br>Následující rostliny představují jedny z nejrozšířenějších a ekologicky dominantních zástupců flóry moderního světa.<br><br><a href='https://cs.wikipedia.org/wiki/Lipnicovit%C3%A9' target='_blank'>Trávy (čeleď Poaceae)</a><br><a href='https://cs.wikipedia.org/wiki/Dub' target='_blank'>Dub (Quercus)</a><br><a href='https://cs.wikipedia.org/wiki/Borovice' target='_blank'>Borovice (Pinus)</a><br><a href='https://cs.wikipedia.org/wiki/B%C5%99%C3%ADza' target='_blank'>Bříza (Betula)</a><br><a href='https://cs.wikipedia.org/wiki/F%C3%ADkus' target='_blank'>Fíkovník (Ficus)</a><br><a href='https://cs.wikipedia.org/wiki/Ak%C3%A1cie' target='_blank'>Akácie (Acacia)</a><br><a href='https://cs.wikipedia.org/wiki/Sekvoj' target='_blank'>Sekvoj (Sequoia)</a><br><a href='https://cs.wikipedia.org/wiki/Chaluha' target='_blank'>Chaluhy (Laminariales)</a><br><a href='https://cs.wikipedia.org/wiki/Ra%C5%A1elin%C3%ADk' target='_blank'>Rašeliník (Sphagnum)</a><br><a href='https://cs.wikipedia.org/wiki/Mangrovy' target='_blank'>Mangrovy (Rhizophoraceae)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+            <div class="hotspot" id="holocene-species" data-title="Významné druhy ve volné přírodě holocénu" data-desc="<img src='https://lh3.googleusercontent.com/u/0/d/1nOt1eN5b-QCwdAtnE6AqQAYq5i6HHrry' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují jedny z nejrozšířenějších a ekologicky nejvýznamnějších divokých druhů současnosti.<br><br><a href='https://cs.wikipedia.org/wiki/Ryb%C3%A1k_dlouhoocas%C3%BD' target='_blank'>Rybák dlouhoocasý (Sterna paradisaea)</a><br><a href='https://cs.wikipedia.org/wiki/Slon_africk%C3%BD' target='_blank'>Slon africký (Loxodonta africana)</a><br><a href='https://cs.wikipedia.org/wiki/Plejtv%C3%A1k_obrovsk%C3%BD' target='_blank'>Plejtvák obrovský (Balaenoptera musculus)</a><br><a href='https://cs.wikipedia.org/wiki/Monarcha_st%C4%9Bhovav%C3%BD' target='_blank'>Monarcha stěhovavý (Danaus plexippus)</a><br><a href='https://cs.wikipedia.org/wiki/Krokod%C3%BDl_nilsk%C3%BD' target='_blank'>Krokodýl nilský (Crocodylus niloticus)</a><br><a href='https://cs.wikipedia.org/wiki/Sokol_st%C4%9Bhovav%C3%BD' target='_blank'>Sokol stěhovavý (Falco peregrinus)</a><br><a href='https://cs.wikipedia.org/wiki/Medv%C4%9Bd_ledn%C3%AD' target='_blank'>Medvěd lední (Ursus maritimus)</a><br><a href='https://cs.wikipedia.org/wiki/Krokod%C3%BDl_mo%C5%99sk%C3%BD' target='_blank'>Krokodýl mořský (Crocodylus porosus)</a><br><a href='https://cs.wikipedia.org/wiki/Albatros_st%C4%9Bhovav%C3%BD' target='_blank'>Albatros stěhovavý (Diomedea exulans)</a><br><a href='https://cs.wikipedia.org/wiki/Vlk_obecn%C3%BD' target='_blank'>Vlk obecný (Canis lupus)</a><br><br>Následující rostliny představují jedny z nejrozšířenějších a ekologicky dominantních zástupců flóry moderního světa.<br><br><a href='https://cs.wikipedia.org/wiki/Lipnicovit%C3%A9' target='_blank'>Trávy (čeleď Poaceae)</a><br><a href='https://cs.wikipedia.org/wiki/Dub' target='_blank'>Dub (Quercus)</a><br><a href='https://cs.wikipedia.org/wiki/Borovice' target='_blank'>Borovice (Pinus)</a><br><a href='https://cs.wikipedia.org/wiki/B%C5%99%C3%ADza' target='_blank'>Bříza (Betula)</a><br><a href='https://cs.wikipedia.org/wiki/F%C3%ADkus' target='_blank'>Fíkovník (Ficus)</a><br><a href='https://cs.wikipedia.org/wiki/Ak%C3%A1cie' target='_blank'>Akácie (Acacia)</a><br><a href='https://cs.wikipedia.org/wiki/Sekvoj' target='_blank'>Sekvoj (Sequoia)</a><br><a href='https://cs.wikipedia.org/wiki/Chaluha' target='_blank'>Chaluhy (Laminariales)</a><br><a href='https://cs.wikipedia.org/wiki/Ra%C5%A1elin%C3%ADk' target='_blank'>Rašeliník (Sphagnum)</a><br><a href='https://cs.wikipedia.org/wiki/Mangrovy' target='_blank'>Mangrovy (Rhizophoraceae)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
 
-            <div class="hotspot" id="pleistocene-species" data-title="Významné druhy pleistocénu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Siegsdorfer_Mammut.jpg/960px-Siegsdorfer_Mammut.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové patřili k nejcharakterističtější velká fauně pleistocénu. Mnohé z těchto druhů zmizely během masového vymírání pleistocenní megafauny.<br><br><a href='https://cs.wikipedia.org/wiki/Mamut_srstnat%C3%BD' target='_blank'>Mamut srstnatý (Mammuthus primigenius)</a><br><a href='https://cs.wikipedia.org/wiki/Nosoro%C5%BEec_srstnat%C3%BD' target='_blank'>Nosorožec srstnatý (Coelodonta antiquitatis)</a><br><a href='https://cs.wikipedia.org/wiki/Lev_jeskynn%C3%AD' target='_blank'>Lev jeskynní (Panthera spelaea)</a><br><a href='https://cs.wikipedia.org/wiki/Smilodon' target='_blank'>Šavlozubý tygr (Smilodon fatalis)</a><br><a href='https://cs.wikipedia.org/wiki/Megatherium' target='_blank'>Obří pozemní lenochod (Megatherium americanum)</a><br><a href='https://cs.wikipedia.org/wiki/Megaloceros' target='_blank'>Veledaněk obrovský (Megaloceros giganteus)</a><br><a href='https://cs.wikipedia.org/wiki/Medv%C4%9Bd_jeskynn%C3%AD' target='_blank'>Medvěd jeskynní (Ursus spelaeus)</a><br><a href='https://cs.wikipedia.org/wiki/Homo_sapiens' target='_blank'>Člověk moudrý (Homo sapiens)</a><br><a href='https://cs.wikipedia.org/wiki/Neandrt%C3%A1lec' target='_blank'>Neandrtálec (Homo neanderthalensis)</a><br><a href='https://cs.wikipedia.org/wiki/Aenocyon_dirus' target='_blank'>Vlk strašný (Aenocyon dirus)</a><br><br>Následující rostliny byly široce rozšířeny v pleistocenní krajině, zejména během střídání glaciálních a interglaciálních cyklů.<br><br><a href='https://cs.wikipedia.org/wiki/Lipnicovit%C3%A9' target='_blank'>Trávy (čeleď Poaceae)</a><br><a href='https://cs.wikipedia.org/wiki/B%C5%99%C3%ADza' target='_blank'>Bříza (Betula)</a><br><a href='https://cs.wikipedia.org/wiki/Borovice' target='_blank'>Borovice (Pinus)</a><br><a href='https://cs.wikipedia.org/wiki/Smrk' target='_blank'>Smrk (Picea)</a><br><a href='https://cs.wikipedia.org/wiki/Vrba' target='_blank'>Vrba (Salix)</a><br><a href='https://cs.wikipedia.org/wiki/Pelyn%C4%9Bk' target='_blank'>Pelyněk (Artemisia)</a><br><a href='https://cs.wikipedia.org/wiki/Dub' target='_blank'>Dub (Quercus)</a><br><a href='https://cs.wikipedia.org/wiki/Ol%C5%A1e' target='_blank'>Olše (Alnus)</a><br><a href='https://cs.wikipedia.org/wiki/Ol%C5%A1e_(rod)' target='_blank'>Ostřice (Carex)</a><br><a href='https://cs.wikipedia.org/wiki/P%C5%99esli%C4%8Dka' target='_blank'>Přeslička (Equisetum)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
+            <div class="hotspot" id="pleistocene-species" data-title="Významné druhy pleistocénu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Siegsdorfer_Mammut.jpg/960px-Siegsdorfer_Mammut.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové patřili k nejcharakterističtější velká fauně pleistocénu. Mnohé z těchto druhů zmizely během masového vymírání pleistocenní megafauny.<br><br><a href='https://cs.wikipedia.org/wiki/Mamut_srstnat%C3%BD' target='_blank'>Mamut srstnatý (Mammuthus primigenius)</a><br><a href='https://cs.wikipedia.org/wiki/Nosoro%C5%BEec_srstnat%C3%BD' target='_blank'>Nosorožec srstnatý (Coelodonta antiquitatis)</a><br><a href='https://cs.wikipedia.org/wiki/Lev_jeskynn%C3%AD' target='_blank'>Lev jeskynní (Panthera spelaea)</a><br><a href='https://cs.wikipedia.org/wiki/Smilodon' target='_blank'>Šavlozubý tygr (Smilodon fatalis)</a><br><a href='https://cs.wikipedia.org/wiki/Megatherium' target='_blank'>Obří pozemní lenochod (Megatherium americanum)</a><br><a href='https://cs.wikipedia.org/wiki/Megaloceros' target='_blank'>Veledaněk obrovský (Megaloceros giganteus)</a><br><a href='https://cs.wikipedia.org/wiki/Medv%C4%9Bd_jeskynn%C3%AD' target='_blank'>Medvěd jeskynní (Ursus spelaeus)</a><br><a href='https://cs.wikipedia.org/wiki/Homo_sapiens' target='_blank'>Člověk moudrý (Homo sapiens)</a><br><a href='https://cs.wikipedia.org/wiki/Neandrt%C3%A1lec' target='_blank'>Neandrtálec (Homo neanderthalensis)</a><br><a href='https://cs.wikipedia.org/wiki/Aenocyon_dirus' target='_blank'>Pravlk obrovský (Aenocyon dirus)</a><br><br>Následující rostliny byly široce rozšířeny v pleistocenní krajině, zejména během střídání glaciálních a interglaciálních cyklů.<br><br><a href='https://cs.wikipedia.org/wiki/Lipnicovit%C3%A9' target='_blank'>Trávy (čeleď Poaceae)</a><br><a href='https://cs.wikipedia.org/wiki/B%C5%99%C3%ADza' target='_blank'>Bříza (Betula)</a><br><a href='https://cs.wikipedia.org/wiki/Borovice' target='_blank'>Borovice (Pinus)</a><br><a href='https://cs.wikipedia.org/wiki/Smrk' target='_blank'>Smrk (Picea)</a><br><a href='https://cs.wikipedia.org/wiki/Vrba' target='_blank'>Vrba (Salix)</a><br><a href='https://cs.wikipedia.org/wiki/Pelyn%C4%9Bk' target='_blank'>Pelyněk (Artemisia)</a><br><a href='https://cs.wikipedia.org/wiki/Dub' target='_blank'>Dub (Quercus)</a><br><a href='https://cs.wikipedia.org/wiki/Ol%C5%A1e' target='_blank'>Olše (Alnus)</a><br><a href='https://cs.wikipedia.org/wiki/Ol%C5%A1e_(rod)' target='_blank'>Ostřice (Carex)</a><br><a href='https://cs.wikipedia.org/wiki/P%C5%99esli%C4%8Dka' target='_blank'>Přeslička (Equisetum)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
 
             <div class="hotspot" id="pliocene-species" data-title="Významné druhy pliocénu" data-desc="<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Mrs_Ples_Face.jpg/960px-Mrs_Ples_Face.jpg' style='width:85%; display:block; margin:12px auto 12px auto; border-radius:6px;'><br>Níže uvedení živočichové představují dominantní a nejvýznamnější faunu pliocénu, období aktivního vývoje homininů a výměny fauny mezi kontinenty.<br><br><a href='https://cs.wikipedia.org/wiki/Australopithecus' target='_blank'>Australopithecus (Australopithecus afarensis)</a><br><a href='https://cs.wikipedia.org/wiki/Mastodont' target='_blank'>Mastodont americký (Mammut americanum)</a><br><a href='https://cs.wikipedia.org/w/index.php?search=Pliohippus&ns0=1&ns100=1&ns102=1' target='_blank'>Pliocenní kůň (Pliohippus)</a><br><a href='https://cs.wikipedia.org/wiki/Smilodon' target='_blank'>Šavlozubý tygr (Smilodon)</a><br><a href='https://cs.wikipedia.org/wiki/Sivatherium' target='_blank'>Sivatherium (Sivatherium giganteum)</a><br><a href='https://cs.wikipedia.org/wiki/Dinofelis' target='_blank'>Dinofelis (Dinofelis barlowi)</a><br><a href='https://cs.wikipedia.org/wiki/Megatherium' target='_blank'>Obří pozemní lenochod (Megatherium)</a><br><a href='https://cs.wikipedia.org/wiki/Mamut' target='_blank'>Raný mamut (Mammuthus meridionalis)</a><br><a href='https://cs.wikipedia.org/w/index.php?search=Agriotherium&ns0=1&ns100=1&ns102=1' target='_blank'>Obří medvěd (Agriotherium africanum)</a><br><a href='https://cs.wikipedia.org/w/index.php?search=Paracamelus&ns0=1&ns100=1&ns102=1' target='_blank'>Pliocenní velbloud (Paracamelus)</a><br><br>Následující rostliny byly široce rozšířeny v pliocenní krajině, která přecházela z lesů na otevřené travnaté plochy.<br><br><a href='https://cs.wikipedia.org/wiki/Lipnicovité' target='_blank'>Trávy (čeleď Poaceae)</a><br><a href='https://cs.wikipedia.org/wiki/Akácie' target='_blank'>Akácie (Acacia)</a><br><a href='https://cs.wikipedia.org/wiki/Dub' target='_blank'>Dub (Quercus)</a><br><a href='https://cs.wikipedia.org/wiki/Sekvoj' target='_blank'>Sekvoj (Sequoia)</a><br><a href='https://cs.wikipedia.org/wiki/Borovice' target='_blank'>Borovice (Pinus)</a><br><a href='https://cs.wikipedia.org/wiki/Šácholan' target='_blank'>Magnólie (Magnolia)</a><br><a href='https://cs.wikipedia.org/wiki/Fíkovník' target='_blank'>Fíkovník (Ficus)</a><br><a href='https://cs.wikipedia.org/wiki/Arekovité' target='_blank'>Palmy (Arecaceae)</a><br><a href='https://cs.wikipedia.org/wiki/Jinan_dvoulaločný' target='_blank'>Jinan (Ginkgo biloba)</a><br><a href='https://cs.wikipedia.org/wiki/Javor' target='_blank'>Javor (Acer)</a><br><br><i>Poznámka: Odkazy vedou na českou Wikipedii, případně na anglickou u druhů, které v češtině chybí.</i>"></div>
 
@@ -707,10 +721,28 @@
             bubble.style.display = 'flex';
             document.body.style.overflow = 'hidden';
             document.addEventListener('touchmove', preventBodyTouch, { passive: false });
-            adjustBubbleForZoom();
+            positionBubble();
+        }
+
+        function positionBubble() {
             if (window.visualViewport) {
-                window.visualViewport.addEventListener('resize', adjustBubbleForZoom);
+                const vv = window.visualViewport;
+                const scale = 1 / vv.scale;
+                bubble.style.position = 'fixed';
+                bubble.style.top = (vv.offsetTop + vv.height / 2) + 'px';
+                bubble.style.left = (vv.offsetLeft + vv.width / 2) + 'px';
+                bubble.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                bubble.style.transformOrigin = 'center center';
             }
+        }
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('scroll', () => {
+                if (bubble.style.display === 'flex') positionBubble();
+            });
+            window.visualViewport.addEventListener('resize', () => {
+                if (bubble.style.display === 'flex') positionBubble();
+            });
         }
 
         function closeBubble() {
@@ -719,21 +751,8 @@
             document.getElementById('overlay').style.display = 'none';
             document.body.style.overflow = '';
             document.removeEventListener('touchmove', preventBodyTouch);
-            if (window.visualViewport) {
-                window.visualViewport.removeEventListener('resize', adjustBubbleForZoom);
-            }
         }
 
-        function adjustScrollPadding() {
-            const header = document.getElementById('fixed-header');
-            const wrapper = document.getElementById('scroll-wrapper');
-            if (header && wrapper) {
-                wrapper.style.paddingTop = header.offsetHeight + 'px';
-            }
-        }
-
-        window.addEventListener('load', adjustScrollPadding);
-        window.addEventListener('resize', adjustScrollPadding);
 
         hotspots.forEach(spot => {
             spot.addEventListener('click', (e) => {
@@ -757,14 +776,59 @@
             }
         });
 
-        window.addEventListener('load', function () {
-            const container = document.querySelector('.image-container');
-            if (container && window.innerWidth < 600) {
-                const scrollTarget = (container.scrollWidth - window.innerWidth) / 2;
-                window.scrollTo({ left: scrollTarget, top: 0, behavior: 'instant' });
+        function positionHeader() {
+            if (window.visualViewport) {
+                const vv = window.visualViewport;
+                const header = document.getElementById('fixed-header');
+                header.style.top = vv.offsetTop + 'px';
+                header.style.left = vv.offsetLeft + 'px';
+                header.style.width = vv.width + 'px';
+
+                // Counteract zoom
+                const scale = 1 / vv.scale;
+                header.style.transformOrigin = 'top left';
+                header.style.transform = `scale(${scale})`;
+                header.style.width = (vv.width * vv.scale) + 'px';
+
+                document.getElementById('header-spacer').style.height = header.offsetHeight + 'px';
             }
+        }
+
+        positionHeader();
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('scroll', positionHeader);
+            window.visualViewport.addEventListener('resize', positionHeader);
+        }
+
+        window.addEventListener('load', function () {
+            const hotspots = document.querySelectorAll('.hotspot');
+            hotspots.forEach(spot => {
+                const desc = spot.getAttribute('data-desc');
+                const match = desc.match(/src=['"]([^'"]+)['"]/);
+                if (match && match[1]) {
+                    const preloadImg = new Image();
+                    preloadImg.src = match[1];
+                }
+            });
         });
 
+        window.addEventListener('load', function () {
+            if (window.innerWidth >= 600) return;
+
+            let attempts = 0;
+            function tryScroll() {
+                const target = window.innerWidth / 2;
+                document.documentElement.scrollLeft = target;
+                document.body.scrollLeft = target;
+                window.scrollTo({ left: target, top: 0, behavior: 'instant' });
+                attempts++;
+                if (document.documentElement.scrollLeft < 1 && document.body.scrollLeft < 1 && attempts < 10) {
+                    setTimeout(tryScroll, 100);
+                }
+            }
+            setTimeout(tryScroll, 200);
+        });
 
 
     </script>
