@@ -165,7 +165,14 @@
 
             #fixed-header {
                 position: fixed;
+				top: 0;
+				left: 0;
                 width: 100vw;
+				background-color: rgba(0, 0, 0, 0.9);
+				z-index: 1000;
+				text-align: center;
+				transform: translateZ(0);
+				will-change: transform;
             }
             
             #scroll-wrapper {
@@ -710,7 +717,27 @@
             bubble.style.display = 'flex';
             document.body.style.overflow = 'hidden';
             document.addEventListener('touchmove', preventBodyTouch, { passive: false });
+			positionBubble();
         }
+		
+		function positionBubble() {
+			if (window.visualViewport) {
+				const vv = window.visualViewport;
+				bubble.style.position = 'fixed';
+				bubble.style.top = (vv.offsetTop + vv.height / 2) + 'px';
+				bubble.style.left = (vv.offsetLeft + vv.width / 2) + 'px';
+				bubble.style.transform = 'translate(-50%, -50%)';
+			}
+		}
+		
+		if (window.visualViewport) {
+			window.visualViewport.addEventListener('scroll', () => {
+				if (bubble.style.display === 'flex') positionBubble();
+			});
+			window.visualViewport.addEventListener('resize', () => {
+				if (bubble.style.display === 'flex') positionBubble();
+			});
+		}
 
         function closeBubble() {
             bubble.style.display = 'none';
@@ -753,14 +780,17 @@
             }
         });
 
-        window.addEventListener('load', function () {
-            const container = document.querySelector('.image-container');
-            if (container && window.innerWidth < 600) {
-				setTimeout(() => {
-					const scrollTarget = (container.scrollWidth - window.innerWidth) / 2;
-					window.scrollTo({ left: scrollTarget, top: 0, behavior: 'instant' });
-				}, 100);
+        function centerScrollOnMobile() {
+            if (window.innerWidth < 600) {
+				const wrapper = document.getElementById('scroll-wrapper');
+				const target = (wrapper.scrollWidth - window.innerWidth) / 2;
+				window.scrollTo({ left: target, top: 0, behavior: 'instant' });
             }
+			
+		}
+		
+		window.addEventListener('load', () => setTimeout(centerScrollOnMobile, 150));
+		document.querySelector('.image-container img').addEventListener('load', centerScrollOnMobile);
         });
 
 
