@@ -719,7 +719,6 @@
         function openBubble() {
             document.getElementById('overlay').style.display = 'block';
             bubble.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
             document.addEventListener('touchmove', preventBodyTouch, { passive: false });
             positionBubble();
         }
