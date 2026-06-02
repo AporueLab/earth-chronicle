@@ -20,6 +20,8 @@
 
         html, body {
             overscroll-behavior: none;
+            height: 100%;
+            overflow: hidden;
         }
 		
 		#overlay {
@@ -131,7 +133,12 @@
 
         #scroll-wrapper {
             width: 100%;
-            
+            padding-bottom: 40px;
+            padding-top: 0;
+            overflow: auto;
+            width: 200vw;
+            height: 100vh;
+            overscroll-behavior: contain;
         }
 
         #fixed-header {
@@ -190,7 +197,6 @@
             #scroll-wrapper {
                 width: 200vw;
                 margin-left: 0;
-                overscroll-behavior: contain;
             }
 
             .main-title {
