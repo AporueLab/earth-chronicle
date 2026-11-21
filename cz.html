@@ -576,6 +576,62 @@
             width: 30%;
             height: 3%;
         }
+/* Quiz entry stays within the fixed header, never over the infographic. */
+        #quiz-launch {
+            display: inline; position: static; vertical-align: baseline;
+            padding: 0; margin: 0; border: 0; border-bottom: 1px dotted #888;
+            border-radius: 0; background: transparent; color: #c9c1b4;
+            font: inherit; text-transform: uppercase; letter-spacing: inherit;
+            cursor: pointer;
+        }
+        #quiz-launch:hover, #quiz-launch:focus-visible { color: bisque; border-bottom-color: bisque; outline-offset: 3px; }
+        .quiz-separator { color: #777; padding: 0 9px; }
+        #quiz-dialog {
+            display: none; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); z-index: 9999;
+            box-sizing: border-box; width: min(94vw, 490px); max-height: 85dvh;
+            overflow-y: auto; flex-direction: column;
+            color: #e8e8e8; background: #202020;
+            border: 1px solid #666; border-radius: 14px;
+            box-shadow: 0 10px 35px #000;
+            padding: 18px; text-align: left;
+        }
+        #quiz-dialog h2 { color: bisque; font-size: 1.2rem; margin: 0 40px 16px 0; }
+        #quiz-x { position: absolute; right: 12px; top: 9px; border: 0;
+            background: transparent; color: #eee; font-size: 24px; cursor: pointer; }
+        #quiz-progress { color: #aaa; font-size: .82rem; margin-bottom: 12px; }
+        #quiz-question { font-size: 1.05rem; line-height: 1.45; margin: 0 0 16px; }
+        #quiz-options { display: grid; gap: 9px; }
+        .quiz-option { text-align: left; padding: 11px 13px; border-radius: 8px;
+            border: 1px solid #666; background: #303030; color: #fff;
+            font-size: .95rem; cursor: pointer; }
+        .quiz-option:not(:disabled):hover { border-color: #eacba1; background: #39342f; }
+        .quiz-option:disabled { cursor: default; opacity: .85; }
+        .quiz-option.correct { border-color: #7cc59a; background: #234332; opacity: 1; }
+        .quiz-option.incorrect { border-color: #da8787; background: #492a2a; }
+        #quiz-feedback { min-height: 1.3em; margin: 14px 0; line-height: 1.45; }
+        #quiz-next { display: none; align-self: flex-end; background: #58452b;
+            color: #fff1d7; border: 1px solid #aa875a; border-radius: 7px;
+            padding: 9px 17px; font-weight: bold; cursor: pointer; }
+
+
+        /* Difficulty chooser — same understated dark style as the quiz. */
+        #quiz-mode-chooser[hidden], #quiz-back[hidden],
+        #quiz-progress[hidden], #quiz-question[hidden],
+        #quiz-options[hidden], #quiz-feedback[hidden] { display: none !important; }
+        #quiz-choose-label { color: #ddd; margin: 0 0 12px; font-size: .95rem; }
+        #quiz-modes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .quiz-mode { border: 1px solid #595959; background: #303030; color: #eee;
+            border-radius: 9px; min-height: 78px; padding: 12px 10px;
+            cursor: pointer; text-align: center; }
+        .quiz-mode:hover, .quiz-mode:focus-visible { border-color: #d4b17d; background: #3b352c; }
+        .quiz-mode strong { display: block; font-size: .85rem; letter-spacing: .6px; color: bisque; }
+        .quiz-mode small { display: block; margin-top: 7px; color: #aaa; line-height: 1.35; }
+        #quiz-back { align-self: flex-start; margin-top: 5px; padding: 8px 0;
+            border: 0; border-bottom: 1px dotted #999; background: transparent;
+            color: #bbb; cursor: pointer; font-size: .8rem; }
+        #quiz-back:hover { color: bisque; }
+        @media (max-width: 360px) { #quiz-modes { grid-template-columns: 1fr; } }
     </style>
 </head>
 
@@ -584,7 +640,7 @@
     <!-- BOOKMARK: Text  -->
     <div id="fixed-header">
         <h1 class="main-title">Kronika Země</h1>
-        <p class="main-subtitle">Interaktivní geologická časová osa<br><br>Klepněte pro prozkoumání</p>
+        <p class="main-subtitle">Interaktivní geologická časová osa<br><br>Klepněte pro prozkoumání<span class="quiz-separator" aria-hidden="true">·</span><button id="quiz-launch" type="button" aria-haspopup="dialog">KVÍZ</button></p>
     </div>
     <div id="header-spacer"></div>
     <div id="scroll-wrapper">
@@ -704,6 +760,21 @@
             <button id="close-btn">Zavřít</button>
         </div>
     </div>
+
+    <section id="quiz-dialog" role="dialog" aria-modal="true" aria-labelledby="quiz-heading" tabindex="-1">
+        <button id="quiz-x" type="button" aria-label="Zavřít kvíz">×</button>
+        <h2 id="quiz-heading">Kvíz: Kronika Země</h2>
+        <div id="quiz-mode-chooser" hidden>
+            <p id="quiz-choose-label">Zvolte obtížnost</p>
+            <div id="quiz-modes"></div>
+        </div>
+        <div id="quiz-progress"></div>
+        <p id="quiz-question"></p>
+        <div id="quiz-options"></div>
+        <p id="quiz-feedback" aria-live="polite"></p>
+        <button id="quiz-back" type="button" hidden>ZMĚNIT OBTÍŽNOST</button>
+        <button id="quiz-next" type="button">DALŠÍ</button>
+    </section>
 
     <!-- BOOKMARK: Script  -->
     <script>
@@ -839,6 +910,175 @@
         });
 
 
+        /* Bilingual, self-contained quiz. No network requests or stored personal data. */
+        (() => {
+            const strings = {"launch":"KVÍZ","title":"Kvíz: Kronika Země","question":"Otázka","of":"z","score":"Body","correct":"Správně!","wrong":"Tentokrát ne.","next":"DALŠÍ","results":"Kvíz dokončen","again":"ZKUSIT ZNOVU","close":"Zavřít kvíz"};
+            const bank = [["Ve kterém období dějin Země platí toto tvrzení: se po vymizení neptačích dinosaurů rozrůznili savci?",["Kenozoikum","Mezozoikum","Paleozoikum","Proterozoikum"],0,"Kenozoikum: se po vymizení neptačích dinosaurů rozrůznili savci.","intermediate"],["Ke kterému období patří následující událost: srážka Indie s Asií vyzdvihla Himálaj?",["Paleozoikum","Proterozoikum","Archaikum","Kenozoikum"],3,"Kenozoikum: srážka Indie s Asií vyzdvihla Himálaj.","intermediate"],["Určete období podle popisu: se při ochlazování rozšiřovaly travnaté oblasti?",["Archaikum","Raná Země","Kenozoikum","Proterozoikum"],2,"Kenozoikum: se při ochlazování rozšiřovaly travnaté oblasti.","advanced"],["Kdy v dějinách Země nastalo toto: rané tropické teplo vystřídaly opakované glaciály?",["Mezozoikum","Kenozoikum","Archaikum","Raná Země"],1,"Kenozoikum: rané tropické teplo vystřídaly opakované glaciály.","expert"],["Ve kterém období dějin Země platí toto tvrzení: se široce rozšířilo zemědělství a domestikace?",["Holocén","Pliocén","Miocén","Oligocén"],0,"Holocén: se široce rozšířilo zemědělství a domestikace.","intermediate"],["Ke kterému období patří následující událost: po posledním ledovcovém maximu stoupla hladina moří?",["Miocén","Oligocén","Eocén","Holocén"],3,"Holocén: po posledním ledovcovém maximu stoupla hladina moří.","intermediate"],["Určete období podle popisu: před asi 11 700 lety začalo současné meziledové období?",["Eocén","Paleocén","Holocén","Oligocén"],2,"Holocén: před asi 11 700 lety začalo současné meziledové období.","advanced"],["Kdy v dějinách Země nastalo toto: začala lidská průmyslová činnost rychle měnit klima?",["Pleistocén","Holocén","Eocén","Paleocén"],1,"Holocén: začala lidská průmyslová činnost rychle měnit klima.","expert"],["Ve kterém období dějin Země platí toto tvrzení: byli rozšířeni mamuti a srstnatí nosorožci?",["Pleistocén","Miocén","Oligocén","Eocén"],0,"Pleistocén: byli rozšířeni mamuti a srstnatí nosorožci.","intermediate"],["Ke kterému období patří následující událost: ledovcové štíty opakovaně postupovaly přes severní kontinenty?",["Oligocén","Eocén","Paleocén","Pleistocén"],3,"Pleistocén: ledovcové štíty opakovaně postupovaly přes severní kontinenty.","intermediate"],["Určete období podle popisu: Beringova pevninská šíje spojovala Asii a Ameriku?",["Paleocén","Holocén","Pleistocén","Eocén"],2,"Pleistocén: Beringova pevninská šíje spojovala Asii a Ameriku.","advanced"],["Kdy v dějinách Země nastalo toto: hladina moří během vrcholného zalednění klesla přibližně o 120 metrů?",["Pliocén","Pleistocén","Paleocén","Holocén"],1,"Pleistocén: hladina moří během vrcholného zalednění klesla přibližně o 120 metrů.","expert"],["Ve kterém období dějin Země platí toto tvrzení: chodil v Africe vzpřímeně Australopithecus?",["Pliocén","Oligocén","Eocén","Paleocén"],0,"Pliocén: chodil v Africe vzpřímeně Australopithecus.","intermediate"],["Ke kterému období patří následující událost: Panamská šíje spojila Severní a Jižní Ameriku?",["Eocén","Paleocén","Holocén","Pliocén"],3,"Pliocén: Panamská šíje spojila Severní a Jižní Ameriku.","intermediate"],["Určete období podle popisu: proběhla velká americká biotická výměna?",["Holocén","Pleistocén","Pliocén","Paleocén"],2,"Pliocén: proběhla velká americká biotická výměna.","advanced"],["Kdy v dějinách Země nastalo toto: uzavření mořského průlivu změnilo oceánské proudění?",["Miocén","Pliocén","Holocén","Pleistocén"],1,"Pliocén: uzavření mořského průlivu změnilo oceánské proudění.","expert"],["Ve kterém období dějin Země platí toto tvrzení: se lidoopi rozrůznili v Africe a Eurasii?",["Miocén","Eocén","Paleocén","Holocén"],0,"Miocén: se lidoopi rozrůznili v Africe a Eurasii.","intermediate"],["Ke kterému období patří následující událost: se šířily travnaté pláně a rychlí pasoucí se savci?",["Paleocén","Holocén","Pleistocén","Miocén"],3,"Miocén: se šířily travnaté pláně a rychlí pasoucí se savci.","intermediate"],["Určete období podle popisu: chaluhové lesy podporovaly bohaté mořské ekosystémy?",["Pleistocén","Pliocén","Miocén","Holocén"],2,"Miocén: chaluhové lesy podporovaly bohaté mořské ekosystémy.","advanced"],["Kdy v dějinách Země nastalo toto: ochlazení před 14 miliony let provázel růst antarktického ledu?",["Oligocén","Miocén","Pleistocén","Pliocén"],1,"Miocén: ochlazení před 14 miliony let provázel růst antarktického ledu.","expert"],["Ve kterém období dějin Země platí toto tvrzení: se rozrůznili raní koně a nosorožci?",["Oligocén","Paleocén","Holocén","Pleistocén"],0,"Oligocén: se rozrůznili raní koně a nosorožci.","intermediate"],["Ke kterému období patří následující událost: při oddělení Antarktidy od Jižní Ameriky se otevřel Drakeův průliv?",["Holocén","Pleistocén","Pliocén","Oligocén"],3,"Oligocén: při oddělení Antarktidy od Jižní Ameriky se otevřel Drakeův průliv.","advanced"],["Určete období podle popisu: při výrazném ochlazení vznikly trvalé antarktické ledovce?",["Pliocén","Miocén","Oligocén","Pleistocén"],2,"Oligocén: při výrazném ochlazení vznikly trvalé antarktické ledovce.","advanced"],["Kdy v dějinách Země nastalo toto: cirkumpolární proudění přispělo k izolaci Antarktidy?",["Eocén","Oligocén","Pliocén","Miocén"],1,"Oligocén: cirkumpolární proudění přispělo k izolaci Antarktidy.","expert"],["Ve kterém období dějin Země platí toto tvrzení: se objevovaly rané velryby a koně mezi lesy ve vysokých šířkách?",["Eocén","Holocén","Pleistocén","Pliocén"],0,"Eocén: se objevovaly rané velryby a koně mezi lesy ve vysokých šířkách.","intermediate"],["Ke kterému období patří následující událost: na počátku proběhlo paleocenně-eocenní teplotní maximum?",["Pleistocén","Pliocén","Miocén","Eocén"],3,"Eocén: na počátku proběhlo paleocenně-eocenní teplotní maximum.","advanced"],["Určete období podle popisu: Indie se srážela s Asií při vzniku Himálaje?",["Miocén","Oligocén","Eocén","Pliocén"],2,"Eocén: Indie se srážela s Asií při vzniku Himálaje.","advanced"],["Kdy v dějinách Země nastalo toto: dlouhé ochlazování skončilo přechodem mezi eocénem a oligocénem?",["Paleocén","Eocén","Miocén","Oligocén"],1,"Eocén: dlouhé ochlazování skončilo přechodem mezi eocénem a oligocénem.","expert"],["Ve kterém období dějin Země platí toto tvrzení: se po vymírání na konci křídy rozrůzňovali drobní savci?",["Paleocén","Pleistocén","Pliocén","Miocén"],0,"Paleocén: se po vymírání na konci křídy rozrůzňovali drobní savci.","intermediate"],["Ke kterému období patří následující událost: byla Indie ostrovním kontinentem putujícím na sever?",["Pliocén","Miocén","Oligocén","Paleocén"],3,"Paleocén: byla Indie ostrovním kontinentem putujícím na sever.","advanced"],["Určete období podle popisu: kapradiny a kvetoucí rostliny tvořily obnovující se lesy?",["Oligocén","Eocén","Paleocén","Miocén"],2,"Paleocén: kapradiny a kvetoucí rostliny tvořily obnovující se lesy.","advanced"],["Kdy v dějinách Země nastalo toto: teplé klima zasahovalo do vysokých šířek bez trvalého polárního ledu?",["Holocén","Paleocén","Oligocén","Eocén"],1,"Paleocén: teplé klima zasahovalo do vysokých šířek bez trvalého polárního ledu.","expert"],["Ve kterém období dějin Země platí toto tvrzení: asteroid zasáhl Yucatán asi před 66 miliony let?",["Vymírání na rozhraní křídy a paleogénu","Devon","Vymírání na rozhraní permu a triasu","Ordovik"],0,"Vymírání na rozhraní křídy a paleogénu: asteroid zasáhl Yucatán asi před 66 miliony let.","intermediate"],["Ke kterému období patří následující událost: vyhynuli neptačí dinosauři a amoniti?",["Vymírání na rozhraní permu a triasu","Ordovik","Devon","Vymírání na rozhraní křídy a paleogénu"],3,"Vymírání na rozhraní křídy a paleogénu: vyhynuli neptačí dinosauři a amoniti.","advanced"],["Určete období podle popisu: prach a vyvržený materiál zastínily Slunce a vyvolaly impaktní zimu?",["Devon","Vymírání na rozhraní permu a triasu","Vymírání na rozhraní křídy a paleogénu","Ordovik"],2,"Vymírání na rozhraní křídy a paleogénu: prach a vyvržený materiál zastínily Slunce a vyvolaly impaktní zimu.","advanced"],["Kdy v dějinách Země nastalo toto: skončilo mezozoikum a urychlil se rozvoj savců?",["Ordovik","Vymírání na rozhraní křídy a paleogénu","Devon","Vymírání na rozhraní permu a triasu"],1,"Vymírání na rozhraní křídy a paleogénu: skončilo mezozoikum a urychlil se rozvoj savců.","expert"],["Ve kterém období dějin Země platí toto tvrzení: na souši dominovali dinosauři a ve vzduchu ptakoještěři?",["Mezozoikum","Raná Země","Kenozoikum","Paleozoikum"],0,"Mezozoikum: na souši dominovali dinosauři a ve vzduchu ptakoještěři.","intermediate"],["Ke kterému období patří následující událost: Pangea se rozpadala na Laurasii a Gondwanu?",["Kenozoikum","Paleozoikum","Proterozoikum","Mezozoikum"],3,"Mezozoikum: Pangea se rozpadala na Laurasii a Gondwanu.","advanced"],["Určete období podle popisu: se objevili první ptáci a kvetoucí rostliny?",["Proterozoikum","Archaikum","Mezozoikum","Paleozoikum"],2,"Mezozoikum: se objevili první ptáci a kvetoucí rostliny.","advanced"],["Kdy v dějinách Země nastalo toto: teplé klima a vysoká mořská hladina zaplavily nížiny?",["Raná Země","Mezozoikum","Proterozoikum","Archaikum"],1,"Mezozoikum: teplé klima a vysoká mořská hladina zaplavily nížiny.","expert"],["Ve kterém období dějin Země platí toto tvrzení: žili Tyrannosaurus rex a Triceratops?",["Křída","Trias","Perm","Svrchní karbon"],0,"Křída: žili Tyrannosaurus rex a Triceratops.","intermediate"],["Ke kterému období patří následující událost: se rychle rozšiřovaly kvetoucí rostliny?",["Perm","Svrchní karbon","Spodní karbon","Křída"],3,"Křída: se rychle rozšiřovaly kvetoucí rostliny.","advanced"],["Určete období podle popisu: vnitrozemské moře rozdělilo Severní Ameriku?",["Spodní karbon","Devon","Křída","Svrchní karbon"],2,"Křída: vnitrozemské moře rozdělilo Severní Ameriku.","advanced"],["Kdy v dějinách Země nastalo toto: období ukončilo hromadné vymírání po dopadu asteroidu?",["Silur","Křída","Spodní karbon","Devon"],1,"Křída: období ukončilo hromadné vymírání po dopadu asteroidu.","expert"],["Ve kterém období dějin Země platí toto tvrzení: žili obří sauropodi a raní ptáci?",["Jura","Perm","Svrchní karbon","Spodní karbon"],0,"Jura: žili obří sauropodi a raní ptáci.","intermediate"],["Ke kterému období patří následující událost: začal se otevírat střední Atlantik?",["Svrchní karbon","Spodní karbon","Devon","Jura"],3,"Jura: začal se otevírat střední Atlantik.","advanced"],["Určete období podle popisu: kapradiny, cykasy a jehličnany živily obří býložravce?",["Devon","Silur","Jura","Spodní karbon"],2,"Jura: kapradiny, cykasy a jehličnany živily obří býložravce.","advanced"],["Kdy v dějinách Země nastalo toto: teplé a vlhké klima podporovalo bujné lesy?",["Ordovik","Jura","Devon","Silur"],1,"Jura: teplé a vlhké klima podporovalo bujné lesy.","expert"],["Ve kterém období dějin Země platí toto tvrzení: se objevili první dinosauři a raní savci?",["Trias","Svrchní karbon","Spodní karbon","Devon"],0,"Trias: se objevili první dinosauři a raní savci.","intermediate"],["Ke kterému období patří následující událost: měla Pangea obrovské suché vnitrozemí?",["Spodní karbon","Devon","Silur","Trias"],3,"Trias: měla Pangea obrovské suché vnitrozemí.","advanced"],["Určete období podle popisu: moře osídlili plazi včetně ichtyosaurů?",["Silur","Ordovik","Trias","Devon"],2,"Trias: moře osídlili plazi včetně ichtyosaurů.","advanced"],["Kdy v dějinách Země nastalo toto: vulkanismus spojený s rozpadem kontinentu předcházel vymírání?",["Kambrium","Trias","Silur","Ordovik"],1,"Trias: vulkanismus spojený s rozpadem kontinentu předcházel vymírání.","expert"],["Ve kterém období dějin Země platí toto tvrzení: vulkanismus sibiřských trapů přispěl k největšímu známému vymírání?",["Vymírání na rozhraní permu a triasu","Ordovik","Devon","Vymírání na rozhraní křídy a paleogénu"],0,"Vymírání na rozhraní permu a triasu: vulkanismus sibiřských trapů přispěl k největšímu známému vymírání.","intermediate"],["Ke kterému období patří následující událost: trilobiti vyhynuli před přibližně 252 miliony let?",["Devon","Vymírání na rozhraní křídy a paleogénu","Ordovik","Vymírání na rozhraní permu a triasu"],3,"Vymírání na rozhraní permu a triasu: trilobiti vyhynuli před přibližně 252 miliony let.","advanced"],["Určete období podle popisu: sopečné plyny provázelo oteplování a úbytek kyslíku v mořích?",["Ordovik","Devon","Vymírání na rozhraní permu a triasu","Vymírání na rozhraní křídy a paleogénu"],2,"Vymírání na rozhraní permu a triasu: sopečné plyny provázelo oteplování a úbytek kyslíku v mořích.","advanced"],["Kdy v dějinách Země nastalo toto: dlouhá obnova ekosystémů uvolnila prostor archosaurům?",["Vymírání na rozhraní křídy a paleogénu","Vymírání na rozhraní permu a triasu","Ordovik","Devon"],1,"Vymírání na rozhraní permu a triasu: dlouhá obnova ekosystémů uvolnila prostor archosaurům.","expert"],["Ve kterém období dějin Země platí toto tvrzení: se život rozrůzňoval v mořích a osídloval souš?",["Paleozoikum","Raná Země","Kenozoikum","Mezozoikum"],0,"Paleozoikum: se život rozrůzňoval v mořích a osídloval souš.","intermediate"],["Ke kterému období patří následující událost: srážky kontinentů postupně sestavily Pangeu?",["Kenozoikum","Mezozoikum","Proterozoikum","Paleozoikum"],3,"Paleozoikum: srážky kontinentů postupně sestavily Pangeu.","advanced"],["Určete období podle popisu: se objevily první lesy a suchozemští čtyřnožci?",["Proterozoikum","Archaikum","Paleozoikum","Mezozoikum"],2,"Paleozoikum: se objevily první lesy a suchozemští čtyřnožci.","advanced"],["Kdy v dějinách Země nastalo toto: období začalo kambrickým rozvojem života a skončilo velkým vymíráním?",["Raná Země","Paleozoikum","Proterozoikum","Archaikum"],1,"Paleozoikum: období začalo kambrickým rozvojem života a skončilo velkým vymíráním.","expert"],["Ve kterém období dějin Země platí toto tvrzení: byli významní synapsidi včetně Dimetrodona?",["Perm","Silur","Ordovik","Kambrium"],0,"Perm: byli významní synapsidi včetně Dimetrodona.","intermediate"],["Ke kterému období patří následující událost: měla Pangea stále sušší vnitrozemí?",["Ordovik","Kambrium","Křída","Perm"],3,"Perm: měla Pangea stále sušší vnitrozemí.","advanced"],["Určete období podle popisu: jehličnany vystřídaly mnohé uhelné lesy?",["Křída","Jura","Perm","Kambrium"],2,"Perm: jehličnany vystřídaly mnohé uhelné lesy.","advanced"],["Kdy v dějinách Země nastalo toto: období skončilo nejzávažnějším hromadným vymíráním?",["Trias","Perm","Křída","Jura"],1,"Perm: období skončilo nejzávažnějším hromadným vymíráním.","expert"],["Ve kterém období dějin Země platí toto tvrzení: uhelné bažiny obsahovaly obří plavuně a stromové kapradiny?",["Svrchní karbon","Ordovik","Kambrium","Křída"],0,"Svrchní karbon: uhelné bažiny obsahovaly obří plavuně a stromové kapradiny.","intermediate"],["Ke kterému období patří následující událost: první plazi vyvinuli vejce vhodná pro souš?",["Kambrium","Křída","Jura","Svrchní karbon"],3,"Svrchní karbon: první plazi vyvinuli vejce vhodná pro souš.","advanced"],["Určete období podle popisu: vzduch bohatý na kyslík podporoval obří příbuzné vážek?",["Jura","Trias","Svrchní karbon","Křída"],2,"Svrchní karbon: vzduch bohatý na kyslík podporoval obří příbuzné vážek.","advanced"],["Kdy v dějinách Země nastalo toto: bažinná vegetace vytvořila velká ložiska uhlí?",["Perm","Svrchní karbon","Jura","Trias"],1,"Svrchní karbon: bažinná vegetace vytvořila velká ložiska uhlí.","expert"],["Ve kterém období dějin Země platí toto tvrzení: mělká moře oplývala lilijicemi a poupěnci?",["Spodní karbon","Kambrium","Křída","Jura"],0,"Spodní karbon: mělká moře oplývala lilijicemi a poupěnci.","intermediate"],["Ke kterému období patří následující událost: na zaplavených šelfech vznikaly mořské vápence?",["Křída","Jura","Trias","Spodní karbon"],3,"Spodní karbon: na zaplavených šelfech vznikaly mořské vápence.","advanced"],["Určete období podle popisu: na souši se rozrůzňovali raní čtyřnožci?",["Trias","Perm","Spodní karbon","Jura"],2,"Spodní karbon: na souši se rozrůzňovali raní čtyřnožci.","advanced"],["Kdy v dějinách Země nastalo toto: s ochlazováním postupně klesala vysoká hladina moří?",["Svrchní karbon","Spodní karbon","Trias","Perm"],1,"Spodní karbon: s ochlazováním postupně klesala vysoká hladina moří.","expert"],["Ve kterém období dějin Země platí toto tvrzení: v mořích dominovaly pancéřnaté ryby jako Dunkleosteus?",["Devon","Křída","Jura","Trias"],0,"Devon: v mořích dominovaly pancéřnaté ryby jako Dunkleosteus.","intermediate"],["Ke kterému období patří následující událost: lalokoploutvé ryby se začaly vyvíjet směrem ke čtyřnožcům?",["Jura","Trias","Perm","Devon"],3,"Devon: lalokoploutvé ryby se začaly vyvíjet směrem ke čtyřnožcům.","advanced"],["Určete období podle popisu: první skutečné lesy snižovaly koncentraci oxidu uhličitého?",["Perm","Svrchní karbon","Devon","Trias"],2,"Devon: první skutečné lesy snižovaly koncentraci oxidu uhličitého.","advanced"],["Kdy v dějinách Země nastalo toto: rozsáhlé tropické útesy předcházely pozdní vymírací krizi?",["Spodní karbon","Devon","Perm","Svrchní karbon"],1,"Devon: rozsáhlé tropické útesy předcházely pozdní vymírací krizi.","expert"],["Ve kterém období dějin Země platí toto tvrzení: se objevily čelistnaté ryby a cévnaté suchozemské rostliny?",["Silur","Jura","Trias","Perm"],0,"Silur: se objevily čelistnaté ryby a cévnaté suchozemské rostliny.","intermediate"],["Ke kterému období patří následující událost: na souš přešli první členovci dýchající vzduch?",["Trias","Perm","Svrchní karbon","Silur"],3,"Silur: na souš přešli první členovci dýchající vzduch.","advanced"],["Určete období podle popisu: po velkém zalednění se vrátila teplá mělká moře?",["Svrchní karbon","Spodní karbon","Silur","Perm"],2,"Silur: po velkém zalednění se vrátila teplá mělká moře.","advanced"],["Kdy v dějinách Země nastalo toto: oceán Iapetus se začal uzavírat při sbližování kontinentů?",["Devon","Silur","Svrchní karbon","Spodní karbon"],1,"Silur: oceán Iapetus se začal uzavírat při sbližování kontinentů.","expert"],["Ve kterém období dějin Země platí toto tvrzení: se v mořích rozrůznili trilobiti a ramenonožci?",["Ordovik","Trias","Perm","Svrchní karbon"],0,"Ordovik: se v mořích rozrůznili trilobiti a ramenonožci.","intermediate"],["Ke kterému období patří následující událost: se u pobřeží objevily malé rostliny podobné mechům?",["Perm","Svrchní karbon","Spodní karbon","Ordovik"],3,"Ordovik: se u pobřeží objevily malé rostliny podobné mechům.","advanced"],["Určete období podle popisu: Gondwana přešla nad jižní pól a nastalo zalednění?",["Spodní karbon","Devon","Ordovik","Svrchní karbon"],2,"Ordovik: Gondwana přešla nad jižní pól a nastalo zalednění.","advanced"],["Kdy v dějinách Země nastalo toto: pokles hladiny moří doprovodil velké pozdní vymírání?",["Silur","Ordovik","Spodní karbon","Devon"],1,"Ordovik: pokles hladiny moří doprovodil velké pozdní vymírání.","advanced"],["Ve kterém období dějin Země platí toto tvrzení: Anomalocaris a trilobiti žili v době rychlého rozvoje mořských živočichů?",["Kambrium","Perm","Svrchní karbon","Spodní karbon"],0,"Kambrium: Anomalocaris a trilobiti žili v době rychlého rozvoje mořských živočichů.","intermediate"],["Ke kterému období patří následující událost: se ve fosilním záznamu objevilo mnoho živočišných tělních plánů?",["Svrchní karbon","Spodní karbon","Devon","Kambrium"],3,"Kambrium: se ve fosilním záznamu objevilo mnoho živočišných tělních plánů.","advanced"],["Určete období podle popisu: mělká teplá moře zaplavovala kontinentální šelfy?",["Devon","Silur","Kambrium","Spodní karbon"],2,"Kambrium: mělká teplá moře zaplavovala kontinentální šelfy.","advanced"],["Kdy v dějinách Země nastalo toto: Gondwana dominovala jihu a Laurentia s Baltikou zůstaly oddělené?",["Ordovik","Kambrium","Devon","Silur"],1,"Kambrium: Gondwana dominovala jihu a Laurentia s Baltikou zůstaly oddělené.","advanced"],["Ve kterém období dějin Země platí toto tvrzení: se vyvinuly eukaryotické buňky a mnohobuněčné organismy?",["Proterozoikum","Paleozoikum","Archaikum","Raná Země"],0,"Proterozoikum: se vyvinuly eukaryotické buňky a mnohobuněčné organismy.","intermediate"],["Ke kterému období patří následující událost: velká oxidační událost proměnila atmosféru?",["Archaikum","Raná Země","Kenozoikum","Proterozoikum"],3,"Proterozoikum: velká oxidační událost proměnila atmosféru.","advanced"],["Určete období podle popisu: vznikl a později se rozpadl superkontinent Rodinie?",["Kenozoikum","Mezozoikum","Proterozoikum","Raná Země"],2,"Proterozoikum: vznikl a později se rozpadl superkontinent Rodinie.","advanced"],["Kdy v dějinách Země nastalo toto: mohlo při epizodách sněhové Země zalednění dosáhnout k rovníku?",["Paleozoikum","Proterozoikum","Kenozoikum","Mezozoikum"],1,"Proterozoikum: mohlo při epizodách sněhové Země zalednění dosáhnout k rovníku.","advanced"],["Ve kterém období dějin Země platí toto tvrzení: známý život tvořily jednobuněčné bakterie a archea?",["Archaikum","Proterozoikum","Raná Země","Kenozoikum"],0,"Archaikum: známý život tvořily jednobuněčné bakterie a archea.","intermediate"],["Ke kterému období patří následující událost: stromatolity zachovaly stopy dávné mikrobiální činnosti?",["Raná Země","Kenozoikum","Mezozoikum","Archaikum"],3,"Archaikum: stromatolity zachovaly stopy dávné mikrobiální činnosti.","advanced"],["Určete období podle popisu: vznikala první stabilní kontinentální jádra?",["Mezozoikum","Paleozoikum","Archaikum","Kenozoikum"],2,"Archaikum: vznikala první stabilní kontinentální jádra.","advanced"],["Kdy v dějinách Země nastalo toto: slabší Slunce svítilo nad atmosférou téměř bez kyslíku?",["Proterozoikum","Archaikum","Mezozoikum","Paleozoikum"],1,"Archaikum: slabší Slunce svítilo nad atmosférou téměř bez kyslíku.","advanced"],["Ve kterém období dějin Země platí toto tvrzení: Země vznikla před asi 4,54 miliardy let z planetesimál?",["Raná Země","Archaikum","Kenozoikum","Mezozoikum"],0,"Raná Země: Země vznikla před asi 4,54 miliardy let z planetesimál.","intermediate"],["Ke kterému období patří následující událost: obří srážka pravděpodobně vyvrhla materiál pro vznik Měsíce?",["Kenozoikum","Mezozoikum","Paleozoikum","Raná Země"],3,"Raná Země: obří srážka pravděpodobně vyvrhla materiál pro vznik Měsíce.","advanced"],["Určete období podle popisu: staré australské zirkony naznačují časnou existenci kapalné vody?",["Paleozoikum","Proterozoikum","Raná Země","Mezozoikum"],2,"Raná Země: staré australské zirkony naznačují časnou existenci kapalné vody.","advanced"],["Kdy v dějinách Země nastalo toto: zahřívání a bombardování předcházelo vzniku prvních oceánů?",["Archaikum","Raná Země","Paleozoikum","Proterozoikum"],1,"Raná Země: zahřívání a bombardování předcházelo vzniku prvních oceánů.","advanced"]];
+            const dialog = document.getElementById('quiz-dialog');
+            const launch = document.getElementById('quiz-launch');
+            const exit = document.getElementById('quiz-x');
+            const question = document.getElementById('quiz-question');
+            const progress = document.getElementById('quiz-progress');
+            const choices = document.getElementById('quiz-options');
+            const feedback = document.getElementById('quiz-feedback');
+            const next = document.getElementById('quiz-next');
+            const overlay = document.getElementById('overlay');
+            let round = [], at = 0, score = 0, answered = false, completed = false;
+            const historyKey = 'aporuelab-earth-quiz-history-cs';
+            let recent = [];
+            try {
+                const saved = JSON.parse(sessionStorage.getItem(historyKey) || '[]');
+                if (Array.isArray(saved)) recent = saved.slice(-3).filter(Array.isArray);
+            } catch (_) { /* Storage may be unavailable. */ }
+            function shuffle(array) {
+                const a = [...array];
+                for (let i = a.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [a[i], a[j]] = [a[j], a[i]];
+                }
+                return a;
+            }
+            function selectRound(mode) {
+                const used = new Set(recent.flat());
+                const distribution = mode === 'mixed'
+                    ? [['intermediate', 3], ['advanced', 5], ['expert', 2]]
+                    : [[mode, 10]];
+                const chosen = [];
+                for (const [tier, n] of distribution) {
+                    const candidates = bank.map((q, i) => ({ q, i })).filter(({ q }) => q[4] === tier);
+                    const fresh = shuffle(candidates.filter(({ i }) => !used.has(i)));
+                    const recycled = shuffle(candidates.filter(({ i }) => used.has(i)));
+                    chosen.push(...fresh.concat(recycled).slice(0, n));
+                }
+                recent.push(chosen.map(({ i }) => i));
+                recent = recent.slice(-3);
+                try { sessionStorage.setItem(historyKey, JSON.stringify(recent)); } catch (_) {}
+                return shuffle(chosen.map(({ q }) => q));
+            }
+            const modeChooser = document.getElementById('quiz-mode-chooser');
+            const modeButtons = document.getElementById('quiz-modes');
+            const backButton = document.getElementById('quiz-back');
+            let currentMode = 'mixed';
+            function chooseMode() {
+                modeChooser.hidden = false;
+                progress.hidden = true;
+                question.hidden = true;
+                choices.hidden = true;
+                feedback.hidden = true;
+                next.style.display = 'none';
+                backButton.hidden = true;
+                modeButtons.replaceChildren();
+                const modes = [["intermediate","STŘEDNÍ","Základní znalosti"],["advanced","POKROČILÁ","Hlubší znalosti"],["expert","EXPERTNÍ","Nejtěžší otázky"],["mixed","SMÍŠENÁ","3 střední · 5 pokročilých · 2 expertní"]];
+                modes.forEach(([id, title, detail]) => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'quiz-mode';
+                    const name = document.createElement('strong');
+                    name.textContent = title;
+                    const subtitle = document.createElement('small');
+                    subtitle.textContent = detail;
+                    button.append(name, subtitle);
+                    button.addEventListener('click', () => start(id));
+                    modeButtons.appendChild(button);
+                });
+            }
+            function showQuizContent() {
+                modeChooser.hidden = true;
+                progress.hidden = false;
+                question.hidden = false;
+                choices.hidden = false;
+                feedback.hidden = false;
+                backButton.hidden = false;
+            }
+            function position() {
+                if (!window.visualViewport) return;
+                const v = window.visualViewport;
+                dialog.style.top = (v.offsetTop + v.height / 2) + 'px';
+                dialog.style.left = (v.offsetLeft + v.width / 2) + 'px';
+                dialog.style.transform = 'translate(-50%, -50%) scale(' + 1 / v.scale + ')';
+                dialog.style.transformOrigin = 'center center';
+            }
+            function showQuestion() {
+                answered = false;
+                const [q, opts] = round[at];
+                progress.textContent = strings.question + ' ' + (at + 1) + ' ' + strings.of + ' ' + round.length + ' · ' + strings.score + ': ' + score;
+                question.textContent = q;
+                feedback.textContent = '';
+                choices.replaceChildren();
+                next.style.display = 'none';
+                opts.forEach((option, index) => {
+                    const b = document.createElement('button');
+                    b.type = 'button';
+                    b.className = 'quiz-option';
+                    b.textContent = option;
+                    b.addEventListener('click', () => choose(index));
+                    choices.appendChild(b);
+                });
+            }
+            function choose(index) {
+                if (answered) return;
+                answered = true;
+                const [, , correct, explanation] = round[at];
+                if (index === correct) score++;
+                choices.querySelectorAll('button').forEach((b, i) => {
+                    b.disabled = true;
+                    if (i === correct) b.classList.add('correct');
+                    else if (i === index) b.classList.add('incorrect');
+                });
+                feedback.textContent = (index === correct ? strings.correct : strings.wrong) + ' ' + explanation;
+                progress.textContent = strings.question + ' ' + (at + 1) + ' ' + strings.of + ' ' + round.length + ' · ' + strings.score + ': ' + score;
+                next.style.display = 'block';
+                next.textContent = at === round.length - 1 ? strings.results : strings.next;
+            }
+            function start(mode) {
+                currentMode = mode;
+                round = selectRound(mode);
+                at = 0; score = 0; completed = false;
+                showQuizContent();
+                showQuestion();
+                dialog.style.display = 'flex';
+                overlay.style.display = 'block';
+                position();
+                dialog.focus();
+            }
+            function finish() {
+                progress.textContent = strings.results;
+                question.textContent = strings.score + ': ' + score + ' / ' + round.length;
+                choices.replaceChildren();
+                feedback.textContent = '';
+                next.textContent = strings.again;
+                next.style.display = 'block';
+            }
+            function close() {
+                dialog.style.display = 'none';
+                overlay.style.display = 'none';
+                launch.focus();
+            }
+            launch.addEventListener('click', (e) => {
+                e.stopPropagation();
+                chooseMode();
+                dialog.style.display = 'flex';
+                overlay.style.display = 'block';
+                position();
+                dialog.focus();
+            });
+            backButton.addEventListener('click', chooseMode);
+            dialog.addEventListener('click', e => e.stopPropagation());
+            exit.addEventListener('click', close);
+            next.addEventListener('click', () => {
+                if (completed) { start(currentMode); return; }
+                if (at === round.length - 1) { completed = true; finish(); return; }
+                at++;
+                showQuestion();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && dialog.style.display === 'flex') close();
+            });
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('scroll', () => { if (dialog.style.display === 'flex') position(); });
+                window.visualViewport.addEventListener('resize', () => { if (dialog.style.display === 'flex') position(); });
+            }
+        })();
     </script>
 
 </body>
