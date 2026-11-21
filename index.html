@@ -576,6 +576,62 @@
             width: 30%;
             height: 3%;
         }
+/* Quiz entry stays within the fixed header, never over the infographic. */
+        #quiz-launch {
+            display: inline; position: static; vertical-align: baseline;
+            padding: 0; margin: 0; border: 0; border-bottom: 1px dotted #888;
+            border-radius: 0; background: transparent; color: #c9c1b4;
+            font: inherit; text-transform: uppercase; letter-spacing: inherit;
+            cursor: pointer;
+        }
+        #quiz-launch:hover, #quiz-launch:focus-visible { color: bisque; border-bottom-color: bisque; outline-offset: 3px; }
+        .quiz-separator { color: #777; padding: 0 9px; }
+        #quiz-dialog {
+            display: none; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); z-index: 9999;
+            box-sizing: border-box; width: min(94vw, 490px); max-height: 85dvh;
+            overflow-y: auto; flex-direction: column;
+            color: #e8e8e8; background: #202020;
+            border: 1px solid #666; border-radius: 14px;
+            box-shadow: 0 10px 35px #000;
+            padding: 18px; text-align: left;
+        }
+        #quiz-dialog h2 { color: bisque; font-size: 1.2rem; margin: 0 40px 16px 0; }
+        #quiz-x { position: absolute; right: 12px; top: 9px; border: 0;
+            background: transparent; color: #eee; font-size: 24px; cursor: pointer; }
+        #quiz-progress { color: #aaa; font-size: .82rem; margin-bottom: 12px; }
+        #quiz-question { font-size: 1.05rem; line-height: 1.45; margin: 0 0 16px; }
+        #quiz-options { display: grid; gap: 9px; }
+        .quiz-option { text-align: left; padding: 11px 13px; border-radius: 8px;
+            border: 1px solid #666; background: #303030; color: #fff;
+            font-size: .95rem; cursor: pointer; }
+        .quiz-option:not(:disabled):hover { border-color: #eacba1; background: #39342f; }
+        .quiz-option:disabled { cursor: default; opacity: .85; }
+        .quiz-option.correct { border-color: #7cc59a; background: #234332; opacity: 1; }
+        .quiz-option.incorrect { border-color: #da8787; background: #492a2a; }
+        #quiz-feedback { min-height: 1.3em; margin: 14px 0; line-height: 1.45; }
+        #quiz-next { display: none; align-self: flex-end; background: #58452b;
+            color: #fff1d7; border: 1px solid #aa875a; border-radius: 7px;
+            padding: 9px 17px; font-weight: bold; cursor: pointer; }
+
+
+        /* Difficulty chooser — same understated dark style as the quiz. */
+        #quiz-mode-chooser[hidden], #quiz-back[hidden],
+        #quiz-progress[hidden], #quiz-question[hidden],
+        #quiz-options[hidden], #quiz-feedback[hidden] { display: none !important; }
+        #quiz-choose-label { color: #ddd; margin: 0 0 12px; font-size: .95rem; }
+        #quiz-modes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .quiz-mode { border: 1px solid #595959; background: #303030; color: #eee;
+            border-radius: 9px; min-height: 78px; padding: 12px 10px;
+            cursor: pointer; text-align: center; }
+        .quiz-mode:hover, .quiz-mode:focus-visible { border-color: #d4b17d; background: #3b352c; }
+        .quiz-mode strong { display: block; font-size: .85rem; letter-spacing: .6px; color: bisque; }
+        .quiz-mode small { display: block; margin-top: 7px; color: #aaa; line-height: 1.35; }
+        #quiz-back { align-self: flex-start; margin-top: 5px; padding: 8px 0;
+            border: 0; border-bottom: 1px dotted #999; background: transparent;
+            color: #bbb; cursor: pointer; font-size: .8rem; }
+        #quiz-back:hover { color: bisque; }
+        @media (max-width: 360px) { #quiz-modes { grid-template-columns: 1fr; } }
     </style>
 </head>
 
@@ -584,7 +640,7 @@
     <!-- BOOKMARK: Text  -->
     <div id="fixed-header">
         <h1 class="main-title">The Earth Chronicle</h1>
-        <p class="main-subtitle">An Interactive Geologic Time Scale<br><br>Tap to explore</p>
+        <p class="main-subtitle">An Interactive Geologic Time Scale<br><br>Tap to explore<span class="quiz-separator" aria-hidden="true">·</span><button id="quiz-launch" type="button" aria-haspopup="dialog">QUIZ</button></p>
     </div>
     <div id="header-spacer"></div>
     <div id="scroll-wrapper">
@@ -704,6 +760,21 @@
             <button id="close-btn">Close</button>
         </div>
     </div>
+
+    <section id="quiz-dialog" role="dialog" aria-modal="true" aria-labelledby="quiz-heading" tabindex="-1">
+        <button id="quiz-x" type="button" aria-label="Close quiz">×</button>
+        <h2 id="quiz-heading">Earth Chronicle Quiz</h2>
+        <div id="quiz-mode-chooser" hidden>
+            <p id="quiz-choose-label">Choose your difficulty</p>
+            <div id="quiz-modes"></div>
+        </div>
+        <div id="quiz-progress"></div>
+        <p id="quiz-question"></p>
+        <div id="quiz-options"></div>
+        <p id="quiz-feedback" aria-live="polite"></p>
+        <button id="quiz-back" type="button" hidden>CHANGE DIFFICULTY</button>
+        <button id="quiz-next" type="button">NEXT</button>
+    </section>
 
     <!-- BOOKMARK: Script  -->
     <script>
@@ -839,6 +910,175 @@
         });
 
 
+        /* Bilingual, self-contained quiz. No network requests or stored personal data. */
+        (() => {
+            const strings = {"launch":"QUIZ","title":"Earth Chronicle Quiz","question":"Question","of":"of","score":"Score","correct":"Correct!","wrong":"Not quite.","next":"NEXT","results":"Quiz complete","again":"TRY AGAIN","close":"Close quiz"};
+            const bank = [["During which part of Earth's history did this happen: mammals diversified after non-avian dinosaurs disappeared?",["Cenozoic Era","Mesozoic Era","Paleozoic Era","Proterozoic Eon"],0,"Cenozoic Era: mammals diversified after non-avian dinosaurs disappeared.","intermediate"],["Which interval is associated with the following: the collision of India and Asia raised the Himalayas?",["Paleozoic Era","Proterozoic Eon","Archean Eon","Cenozoic Era"],3,"Cenozoic Era: the collision of India and Asia raised the Himalayas.","intermediate"],["Identify the interval described: grasslands expanded as the climate cooled?",["Archean Eon","Early Earth","Cenozoic Era","Proterozoic Eon"],2,"Cenozoic Era: grasslands expanded as the climate cooled.","advanced"],["When in Earth's history did this occur: early tropical warmth gave way to repeated glacial cycles?",["Mesozoic Era","Cenozoic Era","Archean Eon","Early Earth"],1,"Cenozoic Era: early tropical warmth gave way to repeated glacial cycles.","expert"],["During which part of Earth's history did this happen: farming and domestication spread widely?",["Holocene Epoch","Pliocene Epoch","Miocene Epoch","Oligocene Epoch"],0,"Holocene Epoch: farming and domestication spread widely.","intermediate"],["Which interval is associated with the following: sea levels rose after the last glacial maximum?",["Miocene Epoch","Oligocene Epoch","Eocene Epoch","Holocene Epoch"],3,"Holocene Epoch: sea levels rose after the last glacial maximum.","intermediate"],["Identify the interval described: the current interglacial began roughly 11,700 years ago?",["Eocene Epoch","Paleocene Epoch","Holocene Epoch","Oligocene Epoch"],2,"Holocene Epoch: the current interglacial began roughly 11,700 years ago.","advanced"],["When in Earth's history did this occur: human industrial activity began rapidly changing the climate?",["Pleistocene Epoch","Holocene Epoch","Eocene Epoch","Paleocene Epoch"],1,"Holocene Epoch: human industrial activity began rapidly changing the climate.","expert"],["During which part of Earth's history did this happen: woolly mammoths and woolly rhinoceroses were widespread?",["Pleistocene Epoch","Miocene Epoch","Oligocene Epoch","Eocene Epoch"],0,"Pleistocene Epoch: woolly mammoths and woolly rhinoceroses were widespread.","intermediate"],["Which interval is associated with the following: ice sheets repeatedly advanced across northern continents?",["Oligocene Epoch","Eocene Epoch","Paleocene Epoch","Pleistocene Epoch"],3,"Pleistocene Epoch: ice sheets repeatedly advanced across northern continents.","intermediate"],["Identify the interval described: a Bering land bridge linked Asia and North America?",["Paleocene Epoch","Holocene Epoch","Pleistocene Epoch","Eocene Epoch"],2,"Pleistocene Epoch: a Bering land bridge linked Asia and North America.","advanced"],["When in Earth's history did this occur: the sea level fell roughly 120 metres during peak glaciation?",["Pliocene Epoch","Pleistocene Epoch","Paleocene Epoch","Holocene Epoch"],1,"Pleistocene Epoch: the sea level fell roughly 120 metres during peak glaciation.","expert"],["During which part of Earth's history did this happen: Australopithecus walked upright in Africa?",["Pliocene Epoch","Oligocene Epoch","Eocene Epoch","Paleocene Epoch"],0,"Pliocene Epoch: Australopithecus walked upright in Africa.","intermediate"],["Which interval is associated with the following: the Panama isthmus linked North and South America?",["Eocene Epoch","Paleocene Epoch","Holocene Epoch","Pliocene Epoch"],3,"Pliocene Epoch: the Panama isthmus linked North and South America.","intermediate"],["Identify the interval described: the Great American Biotic Interchange occurred?",["Holocene Epoch","Pleistocene Epoch","Pliocene Epoch","Paleocene Epoch"],2,"Pliocene Epoch: the Great American Biotic Interchange occurred.","advanced"],["When in Earth's history did this occur: the closure of a seaway changed ocean circulation?",["Miocene Epoch","Pliocene Epoch","Holocene Epoch","Pleistocene Epoch"],1,"Pliocene Epoch: the closure of a seaway changed ocean circulation.","expert"],["During which part of Earth's history did this happen: apes diversified across Africa and Eurasia?",["Miocene Epoch","Eocene Epoch","Paleocene Epoch","Holocene Epoch"],0,"Miocene Epoch: apes diversified across Africa and Eurasia.","intermediate"],["Which interval is associated with the following: grasslands spread and fast-running grazers flourished?",["Paleocene Epoch","Holocene Epoch","Pleistocene Epoch","Miocene Epoch"],3,"Miocene Epoch: grasslands spread and fast-running grazers flourished.","intermediate"],["Identify the interval described: kelp forests supported newly rich marine ecosystems?",["Pleistocene Epoch","Pliocene Epoch","Miocene Epoch","Holocene Epoch"],2,"Miocene Epoch: kelp forests supported newly rich marine ecosystems.","advanced"],["When in Earth's history did this occur: a cooling around 14 million years ago accompanied Antarctic ice growth?",["Oligocene Epoch","Miocene Epoch","Pleistocene Epoch","Pliocene Epoch"],1,"Miocene Epoch: a cooling around 14 million years ago accompanied Antarctic ice growth.","expert"],["During which part of Earth's history did this happen: early horses and rhinoceroses diversified?",["Oligocene Epoch","Paleocene Epoch","Holocene Epoch","Pleistocene Epoch"],0,"Oligocene Epoch: early horses and rhinoceroses diversified.","intermediate"],["Which interval is associated with the following: the Drake Passage opened as Antarctica separated from South America?",["Holocene Epoch","Pleistocene Epoch","Pliocene Epoch","Oligocene Epoch"],3,"Oligocene Epoch: the Drake Passage opened as Antarctica separated from South America.","advanced"],["Identify the interval described: permanent Antarctic ice sheets formed during major cooling?",["Pliocene Epoch","Miocene Epoch","Oligocene Epoch","Pleistocene Epoch"],2,"Oligocene Epoch: permanent Antarctic ice sheets formed during major cooling.","advanced"],["When in Earth's history did this occur: circumpolar ocean circulation contributed to Antarctic isolation?",["Eocene Epoch","Oligocene Epoch","Pliocene Epoch","Miocene Epoch"],1,"Oligocene Epoch: circumpolar ocean circulation contributed to Antarctic isolation.","expert"],["During which part of Earth's history did this happen: early whales and horses appeared amid high-latitude forests?",["Eocene Epoch","Holocene Epoch","Pleistocene Epoch","Pliocene Epoch"],0,"Eocene Epoch: early whales and horses appeared amid high-latitude forests.","intermediate"],["Which interval is associated with the following: the Paleocene–Eocene Thermal Maximum marked the beginning?",["Pleistocene Epoch","Pliocene Epoch","Miocene Epoch","Eocene Epoch"],3,"Eocene Epoch: the Paleocene–Eocene Thermal Maximum marked the beginning.","advanced"],["Identify the interval described: India collided with Asia as Himalayan uplift began?",["Miocene Epoch","Oligocene Epoch","Eocene Epoch","Pliocene Epoch"],2,"Eocene Epoch: India collided with Asia as Himalayan uplift began.","advanced"],["When in Earth's history did this occur: a long cooling trend ended at the Eocene–Oligocene transition?",["Paleocene Epoch","Eocene Epoch","Miocene Epoch","Oligocene Epoch"],1,"Eocene Epoch: a long cooling trend ended at the Eocene–Oligocene transition.","expert"],["During which part of Earth's history did this happen: small mammals diversified after the end-Cretaceous extinction?",["Paleocene Epoch","Pleistocene Epoch","Pliocene Epoch","Miocene Epoch"],0,"Paleocene Epoch: small mammals diversified after the end-Cretaceous extinction.","intermediate"],["Which interval is associated with the following: India was still an island continent moving north?",["Pliocene Epoch","Miocene Epoch","Oligocene Epoch","Paleocene Epoch"],3,"Paleocene Epoch: India was still an island continent moving north.","advanced"],["Identify the interval described: ferns and flowering plants formed recovery forests?",["Oligocene Epoch","Eocene Epoch","Paleocene Epoch","Miocene Epoch"],2,"Paleocene Epoch: ferns and flowering plants formed recovery forests.","advanced"],["When in Earth's history did this occur: warm conditions reached high latitudes without permanent polar ice?",["Holocene Epoch","Paleocene Epoch","Oligocene Epoch","Eocene Epoch"],1,"Paleocene Epoch: warm conditions reached high latitudes without permanent polar ice.","expert"],["During which part of Earth's history did this happen: an asteroid struck Yucatán around 66 million years ago?",["Cretaceous-Paleogene Extinction","Devonian Period","Permian-Triassic Extinction","Ordovician Period"],0,"Cretaceous-Paleogene Extinction: an asteroid struck Yucatán around 66 million years ago.","intermediate"],["Which interval is associated with the following: non-avian dinosaurs and ammonites disappeared?",["Permian-Triassic Extinction","Ordovician Period","Devonian Period","Cretaceous-Paleogene Extinction"],3,"Cretaceous-Paleogene Extinction: non-avian dinosaurs and ammonites disappeared.","advanced"],["Identify the interval described: dust and debris blocked sunlight and produced an impact winter?",["Devonian Period","Permian-Triassic Extinction","Cretaceous-Paleogene Extinction","Ordovician Period"],2,"Cretaceous-Paleogene Extinction: dust and debris blocked sunlight and produced an impact winter.","advanced"],["When in Earth's history did this occur: the Mesozoic ended and mammal diversification accelerated?",["Ordovician Period","Cretaceous-Paleogene Extinction","Devonian Period","Permian-Triassic Extinction"],1,"Cretaceous-Paleogene Extinction: the Mesozoic ended and mammal diversification accelerated.","expert"],["During which part of Earth's history did this happen: dinosaurs dominated land and pterosaurs flew overhead?",["Mesozoic Era","Early Earth","Cenozoic Era","Paleozoic Era"],0,"Mesozoic Era: dinosaurs dominated land and pterosaurs flew overhead.","intermediate"],["Which interval is associated with the following: Pangea broke apart into Laurasia and Gondwana?",["Cenozoic Era","Paleozoic Era","Proterozoic Eon","Mesozoic Era"],3,"Mesozoic Era: Pangea broke apart into Laurasia and Gondwana.","advanced"],["Identify the interval described: the first birds and flowering plants appeared?",["Proterozoic Eon","Archean Eon","Mesozoic Era","Paleozoic Era"],2,"Mesozoic Era: the first birds and flowering plants appeared.","advanced"],["When in Earth's history did this occur: warm climates and high seas covered continental lowlands?",["Early Earth","Mesozoic Era","Proterozoic Eon","Archean Eon"],1,"Mesozoic Era: warm climates and high seas covered continental lowlands.","expert"],["During which part of Earth's history did this happen: Tyrannosaurus rex and Triceratops lived?",["Cretaceous Period","Triassic Period","Permian Period","Late Carboniferous Period"],0,"Cretaceous Period: Tyrannosaurus rex and Triceratops lived.","intermediate"],["Which interval is associated with the following: flowering plants spread rapidly?",["Permian Period","Late Carboniferous Period","Early Carboniferous Period","Cretaceous Period"],3,"Cretaceous Period: flowering plants spread rapidly.","advanced"],["Identify the interval described: an inland sea divided North America?",["Early Carboniferous Period","Devonian Period","Cretaceous Period","Late Carboniferous Period"],2,"Cretaceous Period: an inland sea divided North America.","advanced"],["When in Earth's history did this occur: an asteroid-triggered mass extinction ended the period?",["Silurian Period","Cretaceous Period","Early Carboniferous Period","Devonian Period"],1,"Cretaceous Period: an asteroid-triggered mass extinction ended the period.","expert"],["During which part of Earth's history did this happen: giant sauropod dinosaurs and early birds lived?",["Jurassic Period","Permian Period","Late Carboniferous Period","Early Carboniferous Period"],0,"Jurassic Period: giant sauropod dinosaurs and early birds lived.","intermediate"],["Which interval is associated with the following: the central Atlantic began opening?",["Late Carboniferous Period","Early Carboniferous Period","Devonian Period","Jurassic Period"],3,"Jurassic Period: the central Atlantic began opening.","advanced"],["Identify the interval described: ferns, cycads and conifers sustained giant herbivores?",["Devonian Period","Silurian Period","Jurassic Period","Early Carboniferous Period"],2,"Jurassic Period: ferns, cycads and conifers sustained giant herbivores.","advanced"],["When in Earth's history did this occur: a warm humid greenhouse climate supported lush forests?",["Ordovician Period","Jurassic Period","Devonian Period","Silurian Period"],1,"Jurassic Period: a warm humid greenhouse climate supported lush forests.","expert"],["During which part of Earth's history did this happen: the first true dinosaurs and early mammals appeared?",["Triassic Period","Late Carboniferous Period","Early Carboniferous Period","Devonian Period"],0,"Triassic Period: the first true dinosaurs and early mammals appeared.","intermediate"],["Which interval is associated with the following: Pangea contained an immense arid interior?",["Early Carboniferous Period","Devonian Period","Silurian Period","Triassic Period"],3,"Triassic Period: Pangea contained an immense arid interior.","advanced"],["Identify the interval described: marine reptiles including ichthyosaurs colonised the seas?",["Silurian Period","Ordovician Period","Triassic Period","Devonian Period"],2,"Triassic Period: marine reptiles including ichthyosaurs colonised the seas.","advanced"],["When in Earth's history did this occur: volcanism associated with continental rifting preceded extinction?",["Cambrian Period","Triassic Period","Silurian Period","Ordovician Period"],1,"Triassic Period: volcanism associated with continental rifting preceded extinction.","expert"],["During which part of Earth's history did this happen: Siberian Traps volcanism helped cause the largest known mass extinction?",["Permian-Triassic Extinction","Ordovician Period","Devonian Period","Cretaceous-Paleogene Extinction"],0,"Permian-Triassic Extinction: Siberian Traps volcanism helped cause the largest known mass extinction.","intermediate"],["Which interval is associated with the following: trilobites disappeared approximately 252 million years ago?",["Devonian Period","Cretaceous-Paleogene Extinction","Ordovician Period","Permian-Triassic Extinction"],3,"Permian-Triassic Extinction: trilobites disappeared approximately 252 million years ago.","advanced"],["Identify the interval described: warming and ocean deoxygenation accompanied volcanic gas emissions?",["Ordovician Period","Devonian Period","Permian-Triassic Extinction","Cretaceous-Paleogene Extinction"],2,"Permian-Triassic Extinction: warming and ocean deoxygenation accompanied volcanic gas emissions.","advanced"],["When in Earth's history did this occur: long ecological recovery opened opportunities for archosaurs?",["Cretaceous-Paleogene Extinction","Permian-Triassic Extinction","Ordovician Period","Devonian Period"],1,"Permian-Triassic Extinction: long ecological recovery opened opportunities for archosaurs.","expert"],["During which part of Earth's history did this happen: life diversified in seas and began colonising land?",["Paleozoic Era","Early Earth","Cenozoic Era","Mesozoic Era"],0,"Paleozoic Era: life diversified in seas and began colonising land.","intermediate"],["Which interval is associated with the following: continental collisions progressively assembled Pangea?",["Cenozoic Era","Mesozoic Era","Proterozoic Eon","Paleozoic Era"],3,"Paleozoic Era: continental collisions progressively assembled Pangea.","advanced"],["Identify the interval described: the first forests and land tetrapods appeared?",["Proterozoic Eon","Archean Eon","Paleozoic Era","Mesozoic Era"],2,"Paleozoic Era: the first forests and land tetrapods appeared.","advanced"],["When in Earth's history did this occur: the interval began with Cambrian diversification and ended in the Great Dying?",["Early Earth","Paleozoic Era","Proterozoic Eon","Archean Eon"],1,"Paleozoic Era: the interval began with Cambrian diversification and ended in the Great Dying.","expert"],["During which part of Earth's history did this happen: Dimetrodon and other synapsids were prominent?",["Permian Period","Silurian Period","Ordovician Period","Cambrian Period"],0,"Permian Period: Dimetrodon and other synapsids were prominent.","intermediate"],["Which interval is associated with the following: Pangea had an increasingly arid interior?",["Ordovician Period","Cambrian Period","Cretaceous Period","Permian Period"],3,"Permian Period: Pangea had an increasingly arid interior.","advanced"],["Identify the interval described: conifers replaced many coal-swamp forests?",["Cretaceous Period","Jurassic Period","Permian Period","Cambrian Period"],2,"Permian Period: conifers replaced many coal-swamp forests.","advanced"],["When in Earth's history did this occur: the most severe mass extinction ended the period?",["Triassic Period","Permian Period","Cretaceous Period","Jurassic Period"],1,"Permian Period: the most severe mass extinction ended the period.","expert"],["During which part of Earth's history did this happen: coal swamps contained giant clubmosses and tree ferns?",["Late Carboniferous Period","Ordovician Period","Cambrian Period","Cretaceous Period"],0,"Late Carboniferous Period: coal swamps contained giant clubmosses and tree ferns.","intermediate"],["Which interval is associated with the following: the first reptiles evolved eggs suited for dry land?",["Cambrian Period","Cretaceous Period","Jurassic Period","Late Carboniferous Period"],3,"Late Carboniferous Period: the first reptiles evolved eggs suited for dry land.","advanced"],["Identify the interval described: oxygen-rich air supported huge dragonfly relatives?",["Jurassic Period","Triassic Period","Late Carboniferous Period","Cretaceous Period"],2,"Late Carboniferous Period: oxygen-rich air supported huge dragonfly relatives.","advanced"],["When in Earth's history did this occur: swamp vegetation accumulated into major coal deposits?",["Permian Period","Late Carboniferous Period","Jurassic Period","Triassic Period"],1,"Late Carboniferous Period: swamp vegetation accumulated into major coal deposits.","expert"],["During which part of Earth's history did this happen: shallow seas teemed with crinoids and blastoids?",["Early Carboniferous Period","Cambrian Period","Cretaceous Period","Jurassic Period"],0,"Early Carboniferous Period: shallow seas teemed with crinoids and blastoids.","intermediate"],["Which interval is associated with the following: marine limestones formed over flooded continental shelves?",["Cretaceous Period","Jurassic Period","Triassic Period","Early Carboniferous Period"],3,"Early Carboniferous Period: marine limestones formed over flooded continental shelves.","advanced"],["Identify the interval described: early tetrapods diversified on land?",["Triassic Period","Permian Period","Early Carboniferous Period","Jurassic Period"],2,"Early Carboniferous Period: early tetrapods diversified on land.","advanced"],["When in Earth's history did this occur: high sea levels gradually fell as cooling intensified?",["Late Carboniferous Period","Early Carboniferous Period","Triassic Period","Permian Period"],1,"Early Carboniferous Period: high sea levels gradually fell as cooling intensified.","expert"],["During which part of Earth's history did this happen: armoured fish such as Dunkleosteus dominated marine ecosystems?",["Devonian Period","Cretaceous Period","Jurassic Period","Triassic Period"],0,"Devonian Period: armoured fish such as Dunkleosteus dominated marine ecosystems.","intermediate"],["Which interval is associated with the following: lobe-finned fishes began evolving toward tetrapods?",["Jurassic Period","Triassic Period","Permian Period","Devonian Period"],3,"Devonian Period: lobe-finned fishes began evolving toward tetrapods.","advanced"],["Identify the interval described: the first true forests drew down atmospheric carbon dioxide?",["Permian Period","Late Carboniferous Period","Devonian Period","Triassic Period"],2,"Devonian Period: the first true forests drew down atmospheric carbon dioxide.","advanced"],["When in Earth's history did this occur: vast tropical reefs preceded a late extinction crisis?",["Early Carboniferous Period","Devonian Period","Permian Period","Late Carboniferous Period"],1,"Devonian Period: vast tropical reefs preceded a late extinction crisis.","expert"],["During which part of Earth's history did this happen: jawed fishes and vascular land plants appeared?",["Silurian Period","Jurassic Period","Triassic Period","Permian Period"],0,"Silurian Period: jawed fishes and vascular land plants appeared.","intermediate"],["Which interval is associated with the following: early air-breathing arthropods moved onto land?",["Triassic Period","Permian Period","Late Carboniferous Period","Silurian Period"],3,"Silurian Period: early air-breathing arthropods moved onto land.","advanced"],["Identify the interval described: warm shallow seas returned after a major glaciation?",["Late Carboniferous Period","Early Carboniferous Period","Silurian Period","Permian Period"],2,"Silurian Period: warm shallow seas returned after a major glaciation.","advanced"],["When in Earth's history did this occur: the Iapetus Ocean began closing as continents converged?",["Devonian Period","Silurian Period","Late Carboniferous Period","Early Carboniferous Period"],1,"Silurian Period: the Iapetus Ocean began closing as continents converged.","expert"],["During which part of Earth's history did this happen: trilobites and brachiopods diversified in ancient seas?",["Ordovician Period","Triassic Period","Permian Period","Late Carboniferous Period"],0,"Ordovician Period: trilobites and brachiopods diversified in ancient seas.","intermediate"],["Which interval is associated with the following: small moss-like plants first appeared near shorelines?",["Permian Period","Late Carboniferous Period","Early Carboniferous Period","Ordovician Period"],3,"Ordovician Period: small moss-like plants first appeared near shorelines.","advanced"],["Identify the interval described: Gondwana moved over the South Pole and glaciation developed?",["Early Carboniferous Period","Devonian Period","Ordovician Period","Late Carboniferous Period"],2,"Ordovician Period: Gondwana moved over the South Pole and glaciation developed.","advanced"],["When in Earth's history did this occur: falling sea levels accompanied a severe late mass extinction?",["Silurian Period","Ordovician Period","Early Carboniferous Period","Devonian Period"],1,"Ordovician Period: falling sea levels accompanied a severe late mass extinction.","advanced"],["During which part of Earth's history did this happen: Anomalocaris and trilobites lived amid rapidly diversifying marine animals?",["Cambrian Period","Permian Period","Late Carboniferous Period","Early Carboniferous Period"],0,"Cambrian Period: Anomalocaris and trilobites lived amid rapidly diversifying marine animals.","intermediate"],["Which interval is associated with the following: many major animal body plans appeared in the fossil record?",["Late Carboniferous Period","Early Carboniferous Period","Devonian Period","Cambrian Period"],3,"Cambrian Period: many major animal body plans appeared in the fossil record.","advanced"],["Identify the interval described: shallow warm seas flooded continental shelves?",["Devonian Period","Silurian Period","Cambrian Period","Early Carboniferous Period"],2,"Cambrian Period: shallow warm seas flooded continental shelves.","advanced"],["When in Earth's history did this occur: Gondwana dominated the south while Laurentia and Baltica remained separate?",["Ordovician Period","Cambrian Period","Devonian Period","Silurian Period"],1,"Cambrian Period: Gondwana dominated the south while Laurentia and Baltica remained separate.","advanced"],["During which part of Earth's history did this happen: eukaryotic cells and multicellular organisms evolved?",["Proterozoic Eon","Paleozoic Era","Archean Eon","Early Earth"],0,"Proterozoic Eon: eukaryotic cells and multicellular organisms evolved.","intermediate"],["Which interval is associated with the following: the Great Oxidation Event transformed the atmosphere?",["Archean Eon","Early Earth","Cenozoic Era","Proterozoic Eon"],3,"Proterozoic Eon: the Great Oxidation Event transformed the atmosphere.","advanced"],["Identify the interval described: Rodinia formed and later broke apart?",["Cenozoic Era","Mesozoic Era","Proterozoic Eon","Early Earth"],2,"Proterozoic Eon: Rodinia formed and later broke apart.","advanced"],["When in Earth's history did this occur: Snowball Earth glaciations may have spread ice toward the equator?",["Paleozoic Era","Proterozoic Eon","Cenozoic Era","Mesozoic Era"],1,"Proterozoic Eon: Snowball Earth glaciations may have spread ice toward the equator.","advanced"],["During which part of Earth's history did this happen: known life consisted of single-celled bacteria and archaea?",["Archean Eon","Proterozoic Eon","Early Earth","Cenozoic Era"],0,"Archean Eon: known life consisted of single-celled bacteria and archaea.","intermediate"],["Which interval is associated with the following: stromatolites preserved early microbial activity?",["Early Earth","Cenozoic Era","Mesozoic Era","Archean Eon"],3,"Archean Eon: stromatolites preserved early microbial activity.","advanced"],["Identify the interval described: the first stable continental cratons developed?",["Mesozoic Era","Paleozoic Era","Archean Eon","Cenozoic Era"],2,"Archean Eon: the first stable continental cratons developed.","advanced"],["When in Earth's history did this occur: a fainter Sun shone over an oxygen-poor atmosphere?",["Proterozoic Eon","Archean Eon","Mesozoic Era","Paleozoic Era"],1,"Archean Eon: a fainter Sun shone over an oxygen-poor atmosphere.","advanced"],["During which part of Earth's history did this happen: Earth formed about 4.54 billion years ago from planetesimals?",["Early Earth","Archean Eon","Cenozoic Era","Mesozoic Era"],0,"Early Earth: Earth formed about 4.54 billion years ago from planetesimals.","intermediate"],["Which interval is associated with the following: a giant impact likely ejected material that formed the Moon?",["Cenozoic Era","Mesozoic Era","Paleozoic Era","Early Earth"],3,"Early Earth: a giant impact likely ejected material that formed the Moon.","advanced"],["Identify the interval described: ancient Australian zircon crystals suggest early liquid water?",["Paleozoic Era","Proterozoic Eon","Early Earth","Mesozoic Era"],2,"Early Earth: ancient Australian zircon crystals suggest early liquid water.","advanced"],["When in Earth's history did this occur: heating and bombardment preceded the condensation of early oceans?",["Archean Eon","Early Earth","Paleozoic Era","Proterozoic Eon"],1,"Early Earth: heating and bombardment preceded the condensation of early oceans.","advanced"]];
+            const dialog = document.getElementById('quiz-dialog');
+            const launch = document.getElementById('quiz-launch');
+            const exit = document.getElementById('quiz-x');
+            const question = document.getElementById('quiz-question');
+            const progress = document.getElementById('quiz-progress');
+            const choices = document.getElementById('quiz-options');
+            const feedback = document.getElementById('quiz-feedback');
+            const next = document.getElementById('quiz-next');
+            const overlay = document.getElementById('overlay');
+            let round = [], at = 0, score = 0, answered = false, completed = false;
+            const historyKey = 'aporuelab-earth-quiz-history-en';
+            let recent = [];
+            try {
+                const saved = JSON.parse(sessionStorage.getItem(historyKey) || '[]');
+                if (Array.isArray(saved)) recent = saved.slice(-3).filter(Array.isArray);
+            } catch (_) { /* Private-browsing storage may be unavailable. */ }
+            function shuffle(array) {
+                const a = [...array];
+                for (let i = a.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [a[i], a[j]] = [a[j], a[i]];
+                }
+                return a;
+            }
+            function selectRound(mode) {
+                const used = new Set(recent.flat());
+                const distribution = mode === 'mixed'
+                    ? [['intermediate', 3], ['advanced', 5], ['expert', 2]]
+                    : [[mode, 10]];
+                const chosen = [];
+                for (const [tier, n] of distribution) {
+                    const candidates = bank.map((q, i) => ({ q, i })).filter(({ q }) => q[4] === tier);
+                    const fresh = shuffle(candidates.filter(({ i }) => !used.has(i)));
+                    const recycled = shuffle(candidates.filter(({ i }) => used.has(i)));
+                    chosen.push(...fresh.concat(recycled).slice(0, n));
+                }
+                recent.push(chosen.map(({ i }) => i));
+                recent = recent.slice(-3);
+                try { sessionStorage.setItem(historyKey, JSON.stringify(recent)); } catch (_) {}
+                return shuffle(chosen.map(({ q }) => q));
+            }
+            const modeChooser = document.getElementById('quiz-mode-chooser');
+            const modeButtons = document.getElementById('quiz-modes');
+            const backButton = document.getElementById('quiz-back');
+            let currentMode = 'mixed';
+            function chooseMode() {
+                modeChooser.hidden = false;
+                progress.hidden = true;
+                question.hidden = true;
+                choices.hidden = true;
+                feedback.hidden = true;
+                next.style.display = 'none';
+                backButton.hidden = true;
+                modeButtons.replaceChildren();
+                const modes = [["intermediate","INTERMEDIATE","Fundamentals"],["advanced","ADVANCED","Deeper knowledge"],["expert","EXPERT","The hard questions"],["mixed","MIXED","3 intermediate · 5 advanced · 2 expert"]];
+                modes.forEach(([id, title, detail]) => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'quiz-mode';
+                    const name = document.createElement('strong');
+                    name.textContent = title;
+                    const subtitle = document.createElement('small');
+                    subtitle.textContent = detail;
+                    button.append(name, subtitle);
+                    button.addEventListener('click', () => start(id));
+                    modeButtons.appendChild(button);
+                });
+            }
+            function showQuizContent() {
+                modeChooser.hidden = true;
+                progress.hidden = false;
+                question.hidden = false;
+                choices.hidden = false;
+                feedback.hidden = false;
+                backButton.hidden = false;
+            }
+            function position() {
+                if (!window.visualViewport) return;
+                const v = window.visualViewport;
+                dialog.style.top = (v.offsetTop + v.height / 2) + 'px';
+                dialog.style.left = (v.offsetLeft + v.width / 2) + 'px';
+                dialog.style.transform = 'translate(-50%, -50%) scale(' + 1 / v.scale + ')';
+                dialog.style.transformOrigin = 'center center';
+            }
+            function showQuestion() {
+                answered = false;
+                const [q, opts] = round[at];
+                progress.textContent = strings.question + ' ' + (at + 1) + ' ' + strings.of + ' ' + round.length + ' · ' + strings.score + ': ' + score;
+                question.textContent = q;
+                feedback.textContent = '';
+                choices.replaceChildren();
+                next.style.display = 'none';
+                opts.forEach((option, index) => {
+                    const b = document.createElement('button');
+                    b.type = 'button';
+                    b.className = 'quiz-option';
+                    b.textContent = option;
+                    b.addEventListener('click', () => choose(index));
+                    choices.appendChild(b);
+                });
+            }
+            function choose(index) {
+                if (answered) return;
+                answered = true;
+                const [, , correct, explanation] = round[at];
+                if (index === correct) score++;
+                choices.querySelectorAll('button').forEach((b, i) => {
+                    b.disabled = true;
+                    if (i === correct) b.classList.add('correct');
+                    else if (i === index) b.classList.add('incorrect');
+                });
+                feedback.textContent = (index === correct ? strings.correct : strings.wrong) + ' ' + explanation;
+                progress.textContent = strings.question + ' ' + (at + 1) + ' ' + strings.of + ' ' + round.length + ' · ' + strings.score + ': ' + score;
+                next.style.display = 'block';
+                next.textContent = at === round.length - 1 ? strings.results : strings.next;
+            }
+            function start(mode) {
+                currentMode = mode;
+                round = selectRound(mode);
+                at = 0; score = 0; completed = false;
+                showQuizContent();
+                showQuestion();
+                dialog.style.display = 'flex';
+                overlay.style.display = 'block';
+                position();
+                dialog.focus();
+            }
+            function finish() {
+                progress.textContent = strings.results;
+                question.textContent = strings.score + ': ' + score + ' / ' + round.length;
+                choices.replaceChildren();
+                feedback.textContent = '';
+                next.textContent = strings.again;
+                next.style.display = 'block';
+            }
+            function close() {
+                dialog.style.display = 'none';
+                overlay.style.display = 'none';
+                launch.focus();
+            }
+            launch.addEventListener('click', (e) => {
+                e.stopPropagation();
+                chooseMode();
+                dialog.style.display = 'flex';
+                overlay.style.display = 'block';
+                position();
+                dialog.focus();
+            });
+            backButton.addEventListener('click', chooseMode);
+            dialog.addEventListener('click', e => e.stopPropagation());
+            exit.addEventListener('click', close);
+            next.addEventListener('click', () => {
+                if (completed) { start(currentMode); return; }
+                if (at === round.length - 1) { completed = true; finish(); return; }
+                at++;
+                showQuestion();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && dialog.style.display === 'flex') close();
+            });
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('scroll', () => { if (dialog.style.display === 'flex') position(); });
+                window.visualViewport.addEventListener('resize', () => { if (dialog.style.display === 'flex') position(); });
+            }
+        })();
     </script>
 
 </body>
